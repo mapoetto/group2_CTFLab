@@ -1,0 +1,129 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Tables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+        <div class="row">
+          <div class="col-md-6">
+            <div class="alert alert-info">
+              <div><h3 style="margin: 0 0;">VPN</h3></div>
+              <span>La <b>VPN</b> è al momento <b>OFF</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">Lab 01</h4>
+                  <p class="card-category">XSS-SQLi</p>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    Breve descrizione del lab su gli argomenti trattati.
+                    <br /><br />
+
+                    <!-- check dal backend per mostrare avvia, o stoppa -->
+
+                    <button class="btn btn-primary" id="lab01">Avvia Lab 01</button>
+                    <br /><br />
+                    <div id="result_lab01"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                      <h4 class="card-title ">Lab 02</h4>
+                      <p class="card-category">RCE</p>
+                    </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        Breve descrizione del lab su gli argomenti trattati.
+                        <br /><br />
+                        
+                        {% if 'lab_01_user01' in request.session %}
+                          {% if request.session.lab_01_user01 == "running" %}
+                            <button class="btn btn-primary" id="lab02_stop" onclick="return action_lab('stop_lab','lab02','result_lab02')">Stoppa Lab 02</button>
+                            <button class="btn btn-primary" id="lab02_start" onclick="return action_lab('start_lab','lab02','result_lab02')" style="display:none;">Avvia Lab 02</button>
+                            <br />IP Lab: {{ request.session.lab_01_user01_IP }}
+                            <script>
+                              get_timer('{{ request.session.lab_01_user01_start_time }}', 'timer_lab02', 30);
+                            </script>
+                          {% endif %} 
+                        {% else %}
+                          <button class="btn btn-primary" id="lab02_stop" onclick="return action_lab('stop_lab','lab02','result_lab02')" style="display:none;">Stoppa Lab 02</button>
+                          <button class="btn btn-primary" id="lab02_start" onclick="return action_lab('start_lab','lab02','result_lab02')">Avvia Lab 02</button>
+                        {% endif %} 
+                        <br />
+                        <script>
+
+                            function send_req(POST_REQUEST, return_div_id){
+  
+                              var cb = null;
+
+                              myObj = sendPost(csrftoken, "/core/", POST_REQUEST, function(cb, stat){
+                                if(cb == "error"){
+                                    if(stat == "404"){ //not found
+                                    document.getElementById(return_div_id).innerHTML = "ERRORE ("+stat+")";
+                                    }else if(stat == "0"){
+                                        document.getElementById(return_div_id).innerHTML = "<img src=\"static/assets/img/loading.gif\">";
+                                    }else{//altri errori, tipo 500 o 403
+                                        document.getElementById(return_div_id).innerHTML = "Errore: " + stat;
+                                    }
+                                }else if (typeof cb.error != "undefined"){ //errore custom
+                                    document.getElementById(return_div_id).innerHTML = "Errore: " + cb.error;
+                                }else{
+                                  
+                                  if(typeof cb.response_action != "undefined"){
+                                    if(cb.response_action == "stop_container"){
+                                      document.getElementById("lab02_start").style.display = 'none';
+                                      document.getElementById("lab02_stop").style.display = 'block';
+                                      document.getElementById("timer_lab02").style.display = 'block';
+                                      get_timer(cb.start_time, 'timer_lab02', 30);
+                                    }else if(cb.response_action == "start_container"){
+                                      document.getElementById("lab02_start").style.display = 'block';
+                                      document.getElementById("lab02_stop").style.display = 'none';
+                                      document.getElementById("timer_lab02").style.display = 'none';
+                                    }
+
+                                  }
+                                  
+                                    //questo nasconde il caricamento 
+                                    document.getElementById(return_div_id).innerHTML = cb.msg_response;
+                                }
+                              });
+
+                              return cb;
+
+                            }
+
+                            function action_lab(action_lab, laboratorio, return_div_id){
+
+                              var POST_REQUEST = {
+                                action: action_lab,
+                                lab: laboratorio
+                              }; 
+
+                              send_req(POST_REQUEST, return_div_id);
+
+                              return false;
+                            }
+                        </script>
+                        <div id="result_lab02"></div>
+                        <div id="timer_lab02"></div>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+

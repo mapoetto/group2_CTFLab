@@ -9,7 +9,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+from app.models import User
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
@@ -33,6 +33,9 @@ def login_view(request):
         else:
             msg = 'Error validating the form'    
 
+    class Meta:
+        model = User
+
     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
 
 def register_user(request):
@@ -45,6 +48,9 @@ def register_user(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get("username")
+            nome = form.cleaned_data.get("nome")
+            cognome = form.cleaned_data.get("cognome")
+            professione = form.cleaned_data.get("professione")
             raw_password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
 
@@ -54,7 +60,7 @@ def register_user(request):
             #return redirect("/login/")
 
         else:
-            msg = 'Form is not valid'    
+            msg = 'Form is not valid'
     else:
         form = SignUpForm()
 

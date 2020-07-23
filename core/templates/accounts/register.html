@@ -8,7 +8,7 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-md-5">
+    <div class="col-md-12">
       <div class="card">
         <div class="card-header card-header-primary">
           <h4 class="card-title">
@@ -21,7 +21,7 @@
               {% if msg %}
                 <span class="text-danger">{{ msg }}</span>
               {% else %}
-                Add your credentials or <a href={% url 'login' %} >authenticate</a> with an existing account.
+                Registrati, oppure <a href={% url 'login' %} >fai il login</a>.
               {% endif %}  
           </h6>
           
@@ -30,7 +30,7 @@
           {% if success %}
 
             <p class="">
-              Please <a href={% url 'login' %} class="text-black text-small">authenticate</a> using the new account.
+              Ora puoi <a href={% url 'login' %} class="text-black text-small">autenticarti</a> usando il nuovo account.
             </p>  
 
           {% else %}
@@ -39,10 +39,16 @@
               {% csrf_token %} 
 
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label class="bmd-label-floating">Username</label>
                     {{ form.username }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="bmd-label-floating">Nome</label>
+                    {{ form.nome }}
                   </div>
                 </div>
               </div>
@@ -51,10 +57,16 @@
               <br />
 
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label class="bmd-label-floating">Email</label>
                     {{ form.email }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="bmd-label-floating">Cognome</label>
+                    {{ form.cognome }}
                   </div>
                 </div>
               </div>
@@ -63,10 +75,16 @@
               <br />
 
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label class="bmd-label-floating">Password</label>
                     {{ form.password1 }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="bmd-label-floating">Professione</label>
+                    {{ form.professione }}
                   </div>
                 </div>
               </div>
@@ -75,9 +93,9 @@
               <br />
 
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label class="bmd-label-floating">Password Check</label>
+                    <label class="bmd-label-floating">Ripeti Password</label>
                     {{ form.password2 }}
                   </div>
                 </div>
