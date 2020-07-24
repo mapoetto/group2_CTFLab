@@ -38,6 +38,11 @@ def pages(request):
         html_template = loader.get_template( 'error-500.html' )
         return HttpResponse(html_template.render(context, request))
 
+def cyberkillchain(request):
+    context = {}
+    html_template = loader.get_template( 'cyberkillchain.html' )
+    return HttpResponse(html_template.render(context, request))
+
 @login_required(login_url="/login/")
 def core(request):
     if request.is_ajax():
