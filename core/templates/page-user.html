@@ -10,88 +10,115 @@
           <div class="row">
             <div class="col-md-8">
               <div class="card">
-                <div class="card-header card-header-primary">
+                <div class="card-header card-header-tabs card-header-primary">
+                  <div class="nav-tabs-navigation">
+                    <div class="nav-tabs-wrapper">
+                      <span class="nav-tabs-title">Il tuo Profilo:</span>
+                      <ul class="nav nav-tabs" data-tabs="tabs">
+                        <li class="nav-item">
+                          <a class="nav-link active" href="#profile" data-toggle="tab">
+                            Informazioni Base
+                            <div class="ripple-container"></div>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#password" data-toggle="tab">
+                            Cambia Password
+                            <div class="ripple-container"></div>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+               <!-- <div class="card-header card-header-primary">
                   <h4 class="card-title">Edit Profile</h4>
                   <p class="card-category">Complete your profile</p>
-                </div>
+                </div> -->
                 <div class="card-body">
-                  <form>
-                    <div class="row">
-                      <div class="col-md-5">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">UserID (disabled)</label>
-                          <input type="text" class="form-control" disabled value="{{ request.user.id }}">
-                        </div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Username</label>
-                          <input type="text" class="form-control" value="{{ request.user.username }}">
-                        </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Email address</label>
-                          <input type="email" class="form-control" value="{{ request.user.email }}">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Fist Name</label>
-                          <input type="text" class="form-control" value="{{ request.user.nome }}">
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Last Name</label>
-                          <input type="text" class="form-control">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Adress</label>
-                          <input type="text" class="form-control">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">City</label>
-                          <input type="text" class="form-control">
-                        </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Country</label>
-                          <input type="text" class="form-control">
-                        </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">Postal Code</label>
-                          <input type="text" class="form-control">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label>About Me</label>
-                          <div class="form-group">
-                            <label class="bmd-label-floating"> Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo.</label>
-                            <textarea class="form-control" rows="5"></textarea>
+                  <div class="tab-content">
+
+                    <div class="tab-pane active" id="profile">
+                      <br />
+                      <form>
+                        <div class="row">
+                          <div class="col-md-2">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">UserID (disabled)</label>
+                              <input type="text" class="form-control" disabled value="{{ user_me.pk }}">
+                            </div>
+                          </div>
+                          <div class="col-md-5">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Username</label>
+                              <input type="text" class="form-control" value="{{ user_me.username }}">
+                            </div>
+                          </div>
+                          <div class="col-md-5">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Indirizzo Email</label>
+                              <input type="email" class="form-control" disabled value="{{ user_me.email }}">
+                            </div>
                           </div>
                         </div>
-                      </div>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Nome</label>
+                              <input type="text" class="form-control" value="{{ user_me.nome }}">
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Cognome</label>
+                              <input type="text" class="form-control" value="{{ user_me.cognome }}">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label class="bmd-label-floating">Professione</label>
+                              <input type="text" class="form-control" value="{{ user_me.cognome }}">
+                            </div>
+                          </div>
+                        </div>
+                        <br />
+                        <button type="submit" class="btn btn-primary pull-right">Aggiorna Informazioni</button>
+                        <div class="clearfix"></div>
+                      </form>
                     </div>
-                    <button type="submit" class="btn btn-primary pull-right">Update Profile</button>
-                    <div class="clearfix"></div>
-                  </form>
+                    <div class="tab-pane" id="password">
+                      <br />
+                      <div class="row">
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">Password Attuale</label>
+                            <input type="password" class="form-control" >
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">Nuova Password</label>
+                            <input type="password" class="form-control">
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">Ripeti Nuova Password</label>
+                            <input type="password" class="form-control">
+                          </div>
+                        </div>
+
+                      </div>
+                      <br />
+                      <button type="submit" class="btn btn-primary pull-right">Aggiorna Password</button>
+                      <div class="clearfix"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

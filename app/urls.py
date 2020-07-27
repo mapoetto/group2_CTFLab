@@ -13,7 +13,8 @@ urlpatterns = [
 
     # The home page
     path('', views.index, name='home'),
-    path('cyberkillchain.html', views.cyberkillchain, name='home'),
+    path('cyberkillchain.html', views.cyberkillchain, name='cyberkillchain'),
+    path('page-user.html', views.page_user, name='page_user'),
 
     # Matches any html file - to be used for gentella
     # Avoid using your .html in your resources.
