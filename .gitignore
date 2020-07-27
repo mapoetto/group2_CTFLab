@@ -186,6 +186,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+__pycache__
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -286,3 +287,7 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,linux,windows,macos,django
 
+app/migrations/0002_auto_20200708_1548.py
+app/migrations/0002_auto_20200708_1548.py
+app/migrations/0003_auto_20200709_0810.py
+app/migrations/0004_lab.py
