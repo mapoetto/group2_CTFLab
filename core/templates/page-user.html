@@ -65,13 +65,13 @@
                           <div class="col-md-6">
                             <div class="form-group">
                               <label class="bmd-label-floating">Nome</label>
-                              <input type="text" class="form-control" value="{{ user_me.nome }}">
+                              <input type="text" class="form-control" value="{{ user_me.nome }}" id="nome">
                             </div>
                           </div>
                           <div class="col-md-6">
                             <div class="form-group">
                               <label class="bmd-label-floating">Cognome</label>
-                              <input type="text" class="form-control" value="{{ user_me.cognome }}">
+                              <input type="text" class="form-control" value="{{ user_me.cognome }}" id="cognome">
                             </div>
                           </div>
                         </div>
@@ -79,12 +79,12 @@
                           <div class="col-md-12">
                             <div class="form-group">
                               <label class="bmd-label-floating">Professione</label>
-                              <input type="text" class="form-control" value="{{ user_me.cognome }}">
+                              <input type="text" class="form-control" value="{{ user_me.professione }}" id="professione">
                             </div>
                           </div>
                         </div>
                         <br />
-                        <button type="submit" class="btn btn-primary pull-right">Aggiorna Informazioni</button>
+                        <button type="submit" class="btn btn-primary pull-right" onclick="return update_infos();">Aggiorna Informazioni</button>
                         <div class="clearfix"></div>
                       </form>
                     </div>
@@ -95,30 +95,101 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="bmd-label-floating">Password Attuale</label>
-                            <input type="password" class="form-control" >
+                            <input type="password" class="form-control" id="pwd_attuale">
                           </div>
                         </div>
 
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="bmd-label-floating">Nuova Password</label>
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control" id="new_pwd">
                           </div>
                         </div>
 
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="bmd-label-floating">Ripeti Nuova Password</label>
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control" id="r_new_pwd">
                           </div>
                         </div>
 
                       </div>
                       <br />
-                      <button type="submit" class="btn btn-primary pull-right">Aggiorna Password</button>
+                      <button type="submit" class="btn btn-primary pull-right" onclick="return update_pwd();">Aggiorna Password</button>
                       <div class="clearfix"></div>
                     </div>
                   </div>
+                  <div id="result" style="width: 100%; text-align:center;">
+                    
+                  </div>
+                  <br />
+                  <div id="timer" style="width: 100%; text-align:center;">
+                    
+                  </div>
+                  <script>
+
+                    function send_req(POST_REQUEST){
+
+                      var cb = null;
+
+                      myObj = sendPost(csrftoken, "/core-user/", POST_REQUEST, function(cb, stat){
+                        if(cb == "error"){
+                            if(stat == "404"){ //not found
+                            document.getElementById("result").innerHTML = "ERRORE ("+stat+")";
+                            }else if(stat == "0"){
+                                document.getElementById("result").innerHTML = "<img src=\"static/assets/img/loading.gif\">";
+                            }else{//altri errori, tipo 500 o 403
+                                document.getElementById("result").innerHTML = "Errore: <font color=\"red\">" + stat + "</font>";
+                            }
+                        }else if (typeof cb.error != "undefined"){ //errore custom
+                            document.getElementById("result").innerHTML = "Errore: <font color=\"red\">" + cb.error + "</font>";
+                        }else{
+                          if(typeof cb.logout != "undefined"){
+                            if(cb.logout == "si"){
+                              var count = 6;
+                              var timer = document.getElementById("timer");
+                              setInterval(function(){ if(count > 0){count--; timer.innerHTML = "(Reindirizzamento in "+count+")";}else{window.location.href = "logout/";}}, 1000);
+                              
+                            }
+
+                          }
+
+                          document.getElementById("result").innerHTML = "<font color=\"green\"><b>" + cb.msg_response + "</b></font>";
+                        }
+                      });
+
+                      return cb;
+                    }
+
+                    function update_infos(){
+
+                      var POST_REQUEST = {
+                        action: "update_infos",
+                        nome: document.getElementById("nome").value,
+                        cognome: document.getElementById("cognome").value,
+                        professione: document.getElementById("professione").value
+                      }; 
+
+                      send_req(POST_REQUEST);
+
+                      return false;
+
+                    }
+
+                    function update_pwd(){
+
+                      var POST_REQUEST = {
+                        action: "update_pwd",
+                        pwd_attuale: document.getElementById("pwd_attuale").value,
+                        new_pwd: document.getElementById("new_pwd").value,
+                        r_new_pwd: document.getElementById("r_new_pwd").value
+                      }; 
+
+                      send_req(POST_REQUEST);
+
+                      return false;
+                    }
+                    </script>
                 </div>
               </div>
             </div>

@@ -14,7 +14,9 @@ import os
 
 from .models import User
 from .models import CyberKillChain
+from .models import Lab
 from . import lab_manage as lab_manager
+from . import user_manage as user_manager
 
 @login_required(login_url="/login/")
 def index(request):
@@ -53,6 +55,16 @@ def page_user(request):
     html_template = loader.get_template( 'page-user.html' )
     return HttpResponse(html_template.render(context, request))
 
+def esercizi(request):
+    context = {}
+    labs = Lab.objects.all()
+
+    context = {
+        'labs': labs,
+    }
+    html_template = loader.get_template( 'esercizi.html' )
+    return HttpResponse(html_template.render(context, request))
+
 def cyberkillchain(request):
     context = {}
     cyberkill = CyberKillChain.objects.get(id=1)
@@ -71,6 +83,15 @@ def core(request):
             message = lab_manager.manage(request)
         else:
             message = "Unknown actions"
+    else:
+        message = "Not Ajax"
+
+    return HttpResponse(message)
+
+@login_required(login_url="/login/")
+def core_user(request):
+    if request.is_ajax():
+        message = user_manager.manage(request)
     else:
         message = "Not Ajax"
 

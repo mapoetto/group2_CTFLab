@@ -2,6 +2,8 @@ import json
 import docker
 import datetime
 
+from .models import Lab
+
 def manage(request):
     if request.is_ajax():
         #TO-DO
@@ -19,7 +21,30 @@ def manage(request):
 
         POST_VALUES = json.loads(request.POST.get('data'))
 
-        name_lab = "lab_01_user01"
+        try:
+            labo = Lab.objects.get(pk=POST_VALUES["lab"])
+        except: 
+            response_list = {
+                "error": "Impossibile trovare il laboratorio"
+            }
+            message = json.dumps(response_list)
+
+            return message
+
+        name_lab = "labid_" + str(labo.pk) + "_userid_" + str(request.session["user_pk"])
+        image_lab = labo.docker_name
+
+        cap_lab = labo.cap_add
+
+        if labo.detach == "True":
+            detach_lab = True
+        else:
+            detach_lab = False
+
+        if labo.auto_remove == "True":
+            auto_rm_lab = True
+        else:
+            auto_rm_lab = False
 
         found = False
 
@@ -75,7 +100,7 @@ def manage(request):
                     #print (json.dumps(contain.attrs))
 
                     #message = message + " <br /> imgs: " + contain.attrs['Config']['Image'] + " name:" + contain.attrs['Name']
-                    if contain.attrs['Config']['Image'] == "bkimminich/juice-shop" and contain.attrs['Name'] == "/"+name_lab:
+                    if contain.attrs['Config']['Image'] == image_lab and contain.attrs['Name'] == "/"+name_lab:
                         found = True
                     else:
                         pass
@@ -94,8 +119,8 @@ def manage(request):
                      
                 else:
 
-                    ports_dict = {'3000/tcp': 3000} #will expose port 2222 inside the container as port 3333 on the host.
-                    lab_started = client.containers.run("bkimminich/juice-shop", cap_add=["NET_ADMIN"], detach=True, ports =ports_dict, name=name_lab, auto_remove=True, network=network_name_user)
+                    ports_dict = {'80/tcp': 3000} #will expose port 2222 inside the container as port 3333 on the host.
+                    lab_started = client.containers.run(image_lab, cap_add=[cap_lab], detach=detach_lab, name=name_lab, auto_remove=auto_rm_lab, network=network_name_user)
                     lab_ip = get_ip_by_container(name_lab,network_name_user)
                     net_custom = client.networks.get(network_id=network_name_user)
                     msg_response = "Laboratorio Startato !! <br /> IP Lab: " + lab_ip
@@ -146,13 +171,13 @@ def manage(request):
                     }
                     
 
-        except docker.errors.NotFound: 
-            print("\n \n ---- il server non è riuscito a trovare il container VPN 1 (Provvedere ad un lancio manuale)---- \n \n")
+        except docker.errors.NotFound as e : 
+            print("\n \n ---- il server non è riuscito a trovare il container VPN 1 (Provvedere ad un lancio manuale)  ("+ str(e.args) +")---- \n \n")
             response_list = {
                 "error": "error1"
             }
         except docker.errors.APIError as e:
-            print("\n \n ---- il server non è riuscito a trovare il container VPN 2 ("+ str(e.args) +")---- \n \n")
+            print("\n \n ---- Errore nell'api docker 2 ("+ str(e.args) +")---- \n \n")
             response_list = {
                 "error": "error2"
             }

@@ -29,10 +29,43 @@ class User(AbstractBaseUser):
 
 class Lab(models.Model):
     nome = models.CharField(max_length=120)
-    sotto_titolo = models.CharField(max_length=120)
+    sotto_titolo = models.CharField(max_length=120, default='')
     docker_name = models.CharField(max_length=120)
     descrizione = models.TextField()
-    dockerfile = models.TextField()
+    # cap_add=["NET_ADMIN"], detach=True, ports =ports_dict, name=name_lab, auto_remove=True, network=network_name_user
+
+    NET_ADMIN = 'NET_ADMIN'
+    TRUE = 'True'
+    FALSE = 'False'
+
+    CAP_CHOICES = [
+        (NET_ADMIN, 'Net Admin'),
+    ]
+    cap_add = models.CharField(
+       max_length=32,
+       choices=CAP_CHOICES,
+       default= NET_ADMIN,
+    )
+
+    DETACH_CHOICES = [
+        (TRUE, 'True'),
+        (FALSE, 'False'),
+    ]
+    detach = models.CharField(
+       max_length=32,
+       choices=DETACH_CHOICES,
+       default=TRUE,
+    )
+
+    AUTO_REMOVE_CHOICES = [
+        (TRUE, 'True'),
+        (FALSE, 'False'),
+    ]
+    auto_remove = models.CharField(
+       max_length=32,
+       choices=AUTO_REMOVE_CHOICES,
+       default=TRUE,
+    )
 
     def __str__(self):
         return self.nome + " - " + self.docker_name
