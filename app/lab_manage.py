@@ -11,10 +11,11 @@ from .models import Lab
 # SPAWNING DEL PROCESSO CHE CONTROLLA L'UTENZA
 # push route indirizzo ip subnet e la mask  PATH di CONF profilizzata /etc/openVPN/ccd
 
+# Funzione equivalente a decodeURIComponent di javascript
 def decode_input(inputs):
 
     RETURNED = {}
-
+   
     for key,value in inputs.items():
         RETURNED[key] = urllib.parse.unquote(value)
 
