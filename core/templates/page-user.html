@@ -164,10 +164,10 @@
                     function update_infos(){
 
                       var POST_REQUEST = {
-                        action: "update_infos",
-                        nome: document.getElementById("nome").value,
-                        cognome: document.getElementById("cognome").value,
-                        professione: document.getElementById("professione").value
+                        action: encodeURIComponent("update_infos"),
+                        nome: encodeURIComponent(document.getElementById("nome").value),
+                        cognome: encodeURIComponent(document.getElementById("cognome").value),
+                        professione: encodeURIComponent(document.getElementById("professione").value)
                       }; 
 
                       send_req(POST_REQUEST);
@@ -179,10 +179,10 @@
                     function update_pwd(){
 
                       var POST_REQUEST = {
-                        action: "update_pwd",
-                        pwd_attuale: document.getElementById("pwd_attuale").value,
-                        new_pwd: document.getElementById("new_pwd").value,
-                        r_new_pwd: document.getElementById("r_new_pwd").value
+                        action: encodeURIComponent("update_pwd"),
+                        pwd_attuale: encodeURIComponent(document.getElementById("pwd_attuale").value),
+                        new_pwd: encodeURIComponent(document.getElementById("new_pwd").value),
+                        r_new_pwd: encodeURIComponent(document.getElementById("r_new_pwd").value)
                       }; 
 
                       send_req(POST_REQUEST);

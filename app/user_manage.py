@@ -1,6 +1,17 @@
 from .models import User
 from django.contrib.auth.hashers import check_password
 import json
+import base64
+import urllib
+
+def decode_input(inputs):
+
+    RETURNED = {}
+
+    for key,value in inputs.items():
+        RETURNED[key] = urllib.parse.unquote(value)
+
+    return RETURNED
 
 def manage(request):
 
@@ -8,7 +19,7 @@ def manage(request):
         "": ""
     }
 
-    POST_VALUES = json.loads(request.POST.get('data'))
+    POST_VALUES = decode_input(json.loads(request.POST.get('data')))
 
     if POST_VALUES["action"] == "update_infos":
         

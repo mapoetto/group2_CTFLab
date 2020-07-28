@@ -99,8 +99,8 @@
                             function action_lab(action_lab, laboratorio){
 
                               var POST_REQUEST = {
-                                action: action_lab,
-                                lab: laboratorio
+                                action: encodeURIComponent(action_lab),
+                                lab: encodeURIComponent(laboratorio)
                               }; 
 
                               send_req(POST_REQUEST, laboratorio);
