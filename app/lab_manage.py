@@ -5,6 +5,8 @@ import urllib
 
 from .models import Lab
 
+from ipaddress import IPv4Interface
+
 #TO-DO
 
 # IMPLEMENTARE TIMER CHE STOPPA AUTOMATICAMENTE TUTTO DOPO UN DET.TEMPO
@@ -20,6 +22,10 @@ def decode_input(inputs):
         RETURNED[key] = urllib.parse.unquote(value)
 
     return RETURNED
+
+#cont_vpn = client.containers.get("serverVPN")
+#stdout = cont_vpn.exec_run(cmd="ovpn_getclient user01")
+
 
 def manage(request):
     # is_ajax è una funzione già fatta da Django che controlla la presenza dell'header HTTP_X_REQUESTED_WITH nella richiesta HTTP
@@ -56,6 +62,9 @@ def manage(request):
 
         # Nome del container Docker per il Laboratorio
         name_lab = "labid_" + str(labo.pk) + "_userid_" + str(request.session["user_pk"])
+
+        # Nome per il certificato client dell VPN
+        name_client_ovpn = "userid_" + str(request.session["user_pk"])
 
         # Nome Immagine del DockerHub
         image_lab = labo.docker_name
@@ -127,6 +136,9 @@ def manage(request):
             # Controlliamo se il server vpn è già connesso alla rete custom dell'utente
             net_custom = client.networks.get(network_id=network_name_user) #prende i container collegati alla network 
             found_vpn_connection = False
+            #print("\n\n -->" + json.dumps(net_custom.attrs))
+            
+            #print("\n\n -->" + net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3])
 
             #Scorre tutti i container connessi alla network utente
             for container in net_custom.attrs["Containers"]:
@@ -137,6 +149,64 @@ def manage(request):
             #se il serverVPN non è connesso alla rete custom, connettilo
             if found_vpn_connection == False:
                 client_low.connect_container_to_network(container=name_VPN, net_id=network_name_user)
+            
+            # - CHECK 4 -
+            # Controlliamo se nel container vpn esiste già la configurazione per l'utente attuale
+            # La configurazione consiste nell'avere nel containerVPN, nella cartella etc/openvpn/ccd (path indicato quando si crea la configurazione del containerVPN)
+            # un file che rispecchi il nome di un client
+            # ed all'interno del file ci sia la stringa
+            # push "route 172.24.0.0 255.255.0.0"
+            # dove 172.24.0.0 è l'ip della subnet custom creata per l'utente e 255.255.0.0 la sua netmask
+            # dopodichè bisogna dare il comando seguente:
+            # iptables -t nat -A POSTROUTING -o $INTERFACE_USERID_1 -j MASQUERADE
+            # per dire al containerVPN di agire da NAT per quell'interfaccia
+            # $INTERFACE_USERID_1 è una variabile d'ambiente in cui setta l'interfaccia fisica del containerVPN su cui è connesso alla rete custom
+
+            cont_vpn = client.containers.get(name_VPN)
+            stdout = cont_vpn.exec_run(cmd="cd etc/openvpn/ccd && [ -f logss ] && echo \"File found!\"")
+
+            #net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3] è l'ip della subnet
+            #net_custom.attrs["IPAM"]["Config"][0]["Subnet"] è la network interface (ovvero l'ip con /16 alla fine)
+
+            if stdout.output != "File found!":
+                netmask_from_ip_interface = str(IPv4Interface(net_custom.attrs["IPAM"]["Config"][0]["Subnet"]).netmask)
+                command = "echo 'push \"route "+ net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3] +" "+netmask_from_ip_interface+"\"' > /etc/openvpn/ccd/"+ name_client_ovpn
+                stdout = cont_vpn.exec_run(cmd=command)
+                print("\n\n1--->> "+ str(stdout.output))
+                print("\n\n11--->> "+ str(stdout.exit_code))
+                print(command)
+
+                # se il primo comando è andato bene
+                if stdout.exit_code == 0:
+
+                    # setta una variabile d'ambiente in cui inserisce l'interfaccia fisica del containerVPN che è connessa alla network custom
+                    # 172.24.0.2 = ip del serverVPN nella rete custom = cont_vpn.attrs["NetworkSettings"]["Networks"][network_name_user]["IPAddress"]
+                    # export INTERFACE_USERID_1=$(ifconfig | sed -n '/addr:172.24.0.2/{g;H;p};H;x' | awk '{print $1}')
+
+                    name_variable_env = "INTERFACE_USERID_" + str(request.session["user_pk"])
+                    ip_serverVPN_in_rete_custom = str(cont_vpn.attrs["NetworkSettings"]["Networks"][network_name_user]["IPAddress"])
+                    command = "export "+name_variable_env+"=$(ifconfig | sed -n '/addr:"+ip_serverVPN_in_rete_custom+"/{g;H;p};H;x' | awk '{print $1}')"
+                    stdout = cont_vpn.exec_run(cmd=command)
+
+                    print("\n\n2--->> "+ str(stdout.output))
+                    print("\n\n22--->> "+ str(stdout.exit_code))
+
+                    # se il secondo comando è andato bene
+                    if stdout.exit_code == 0:
+                        # iptables -t nat -A POSTROUTING -o $INTERFACE_USERID_1 -j MASQUERADE
+
+                        command = "iptables -t nat -A POSTROUTING -o $"+name_variable_env+" -j MASQUERADE"
+                        stdout = cont_vpn.exec_run(cmd=command)
+                        print("\n\n3--->> "+ str(stdout.output))
+                        print("\n\n33--->> "+ str(stdout.exit_code))
+
+                        # se l'ultimo comando è andato male
+                        if stdout.exit_code != 0:
+                            pass #return
+                    else:
+                        pass #return
+                else:
+                    pass #return
 
             ######################################################################
             #                                                                    #

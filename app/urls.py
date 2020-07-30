@@ -16,12 +16,14 @@ urlpatterns = [
     path('cyberkillchain.html', views.cyberkillchain, name='cyberkillchain'),
     path('page-user.html', views.page_user, name='page_user'),
     path('esercizi.html', views.esercizi, name='esercizi'),
+    path('client.ovpn', views.get_client_vpn, name='core_user'),
     path('core-user/', views.core_user, name='core_user'),
-
+    
     # Matches any html file - to be used for gentella
     # Avoid using your .html in your resources.
     # Or create a separate django app.
     re_path(r'^core/$', views.core, name='core'),
+    #re_path(r'^get-user-\d+\/', views.get_client_vpn, name='get_client_vpn'),
     re_path(r'^.*\.*', views.pages, name='pages'),
 
 ]

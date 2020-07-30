@@ -11,6 +11,8 @@ from django.http import HttpResponse
 from django import template
 import json
 import os
+import docker
+import html
 
 from .models import User
 from .models import CyberKillChain
@@ -42,6 +44,21 @@ def pages(request):
     
         html_template = loader.get_template( 'error-500.html' )
         return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def get_client_vpn(request):
+
+    client = docker.from_env()
+
+    cont_vpn = client.containers.get("serverVPN")
+    stdout = cont_vpn.exec_run(cmd="ovpn_getclient user01")
+
+    context = {
+        'client': bytes(stdout.output).decode("utf-8"),
+    }
+
+    html_template = loader.get_template('client.ovpn')
+    return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
 def page_user(request):
