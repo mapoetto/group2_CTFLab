@@ -2,6 +2,8 @@ import json
 import docker
 import datetime
 import urllib
+from app.setup_docker_client import get_docker_client
+from app.setup_docker_client import LOCAL_TUNNEL
 
 from .models import Lab
 
@@ -32,8 +34,8 @@ def manage(request):
     if request.is_ajax():
 
         # L'SDK python per docker ha una versione standard, ed una versione "low" che permette di interagire con docker a più basso livello
-        client = docker.from_env()
-        client_low = docker.APIClient(base_url='unix://var/run/docker.sock')
+        client = get_docker_client(LOCAL_TUNNEL)
+        client_low = get_docker_client(LOCAL_TUNNEL, True)
 
         #creo una data corretta che servirà successivamente (il sistema attuale è 2 ore indietro, quindi qui ne aggiungo 2)
         x = datetime.datetime.now() + datetime.timedelta(hours=2)
@@ -170,7 +172,10 @@ def manage(request):
 
             if stdout.output != "File found!":
                 netmask_from_ip_interface = str(IPv4Interface(net_custom.attrs["IPAM"]["Config"][0]["Subnet"]).netmask)
-                command = "echo 'push \"route "+ net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3] +" "+netmask_from_ip_interface+"\"' > /etc/openvpn/ccd/"+ name_client_ovpn
+                str1 = "sh -c \'echo \\'push \"route "
+                str2 = "\" \\' > /etc/openvpn/ccd/"
+                command = str1 + net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3] +" "+netmask_from_ip_interface + str2 + name_client_ovpn + "\'"
+                print("\n\n" + command)
                 stdout = cont_vpn.exec_run(cmd=command)
                 print("\n\n1--->> "+ str(stdout.output))
                 print("\n\n11--->> "+ str(stdout.exit_code))

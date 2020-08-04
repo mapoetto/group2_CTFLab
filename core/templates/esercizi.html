@@ -35,6 +35,21 @@
                     <div class="card-header card-header-primary">
                       <h4 class="card-title ">{{ laboratorio.nome }}</h4>
                       <p class="card-category">{{ laboratorio.sotto_titolo }}</p>
+                      {% if laboratorio.argomento_1.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_1.pk }}/"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_1.colore }};">{{ laboratorio.argomento_1.argomento }}</span></a>
+                      {% endif %}
+                      {% if laboratorio.argomento_2.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_2.pk }}/"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_2.colore }};">{{ laboratorio.argomento_2.argomento }}</span></a>
+                      {% endif %}
+                      {% if laboratorio.argomento_3.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_3.pk }}/"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_3.colore }};">{{ laboratorio.argomento_3.argomento }}</span></a>
+                      {% endif %}
+                      {% if laboratorio.argomento_4.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_4.pk }}/"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_4.colore }};">{{ laboratorio.argomento_4.argomento }}</span></a>
+                      {% endif %}
+                      {% if laboratorio.livello.colore|length >= 3 %}
+                        <span class="card-category tag_level" style=" background-color: {{ laboratorio.livello.colore }}; font-weight: bold;"><b>{{ laboratorio.livello.livello }}</b></span>
+                      {% endif %}
                     </div>
                     <div class="card-body">
                       <div class="table-responsive">

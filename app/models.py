@@ -8,7 +8,22 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.core.exceptions import ValidationError
 
+from itertools import chain
+
+from django.core import serializers
+
+from django.forms.models import model_to_dict
+
 # Create your models here.
+
+def to_dict(instance):
+    opts = instance._meta
+    data = {}
+    for f in chain(opts.concrete_fields, opts.private_fields):
+        data[f.name] = f.value_from_object(instance)
+    for f in opts.many_to_many:
+        data[f.name] = [i.id for i in f.value_from_object(instance)]
+    return data
 
 class User(AbstractBaseUser):
     nome = models.CharField(max_length=120)
@@ -26,6 +41,20 @@ class User(AbstractBaseUser):
     PASSWORD_FIELD = 'password'
     PROFESSIONE_FIELD = 'professione'
     REQUIRED_FIELDS = ['email','username','nome','cognome','password','professione']
+
+class Tag_Args(models.Model):
+    colore = models.CharField(max_length=7, unique=True)# #FF5733
+    argomento = models.CharField(max_length=20) # SQL Injection
+
+    def __str__(self):
+        return self.argomento
+
+class Tag_Level(models.Model):
+    colore = models.CharField(max_length=7 , unique=True)# #FF5733
+    livello = models.CharField(max_length=20) # Difficile
+
+    def __str__(self):
+        return self.livello
 
 class Lab(models.Model):
     nome = models.CharField(max_length=120)
@@ -66,6 +95,17 @@ class Lab(models.Model):
        choices=AUTO_REMOVE_CHOICES,
        default=TRUE,
     )
+
+    #ARGOMENTI = serializers.serialize('json', app.Tag_Args.objects.all(), fields=('argomento'))
+
+    #d.__setitem__(key, value)
+
+    livello=models.ForeignKey(Tag_Level, related_name="livello_diff", default=None, blank=True, null=True, on_delete=models.CASCADE)
+
+    argomento_1=models.ForeignKey(Tag_Args, related_name="argo1", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_2=models.ForeignKey(Tag_Args, related_name="argo2", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_3=models.ForeignKey(Tag_Args, related_name="argo3", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_4=models.ForeignKey(Tag_Args, related_name="argo4", default=None, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nome + " - " + self.docker_name

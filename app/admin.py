@@ -8,8 +8,12 @@ from django.contrib import admin
 from .models import User
 from .models import Lab
 from .models import CyberKillChain
+from .models import Tag_Args
+from .models import Tag_Level
 
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Lab)
 admin.site.register(CyberKillChain)
+admin.site.register(Tag_Args)
+admin.site.register(Tag_Level)
