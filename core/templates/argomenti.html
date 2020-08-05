@@ -1,0 +1,32 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Tables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<br />
+        <div class="row">
+          <div class="col-md-10">
+            <span class="tag_args" style="padding: 10px; font-size: 55px;  border: 4px solid {{ argomento.colore }};">{{ argomento.argomento }}<br /></span><br />
+          </div>
+        </div> 
+        <div class="row">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        {{ argomento.spiegazione|safe }}
+                        <br />
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+

@@ -11,9 +11,13 @@ from django.http import HttpResponse
 from django import template
 import json
 import os
-import docker
+
+from app.setup_docker_client import get_docker_client
+from app.setup_docker_client import LOCAL_TUNNEL
+
 import html
 
+from .models import Tag_Args
 from .models import User
 from .models import CyberKillChain
 from .models import Lab
@@ -48,7 +52,7 @@ def pages(request):
 @login_required(login_url="/login/")
 def get_client_vpn(request):
 
-    client = docker.from_env()
+    client = get_docker_client(LOCAL_TUNNEL)
 
     cont_vpn = client.containers.get("serverVPN")
     stdout = cont_vpn.exec_run(cmd="ovpn_getclient user01")
@@ -61,6 +65,22 @@ def get_client_vpn(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+def argomenti(request):
+    context = {}
+    page = request.get_full_path()
+    pk = page.split("-")
+    pk = pk[-1].split(".")
+    pk_arg = pk[0]
+
+    arg = Tag_Args.objects.get(pk=pk_arg)
+
+    context = {
+        'argomento': arg,
+    }
+    html_template = loader.get_template( 'argomenti.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
 def page_user(request):
     context = {}
     print(request.user.id)
@@ -69,7 +89,7 @@ def page_user(request):
     context = {
         'user_me': user_me,
     }
-    html_template = loader.get_template( 'page-user.html' )
+    html_template = loader.get_template( 'argomenti.html' )
     return HttpResponse(html_template.render(context, request))
 
 def esercizi(request):

@@ -45,6 +45,7 @@ class User(AbstractBaseUser):
 class Tag_Args(models.Model):
     colore = models.CharField(max_length=7, unique=True)# #FF5733
     argomento = models.CharField(max_length=20) # SQL Injection
+    spiegazione = models.TextField(default='')
 
     def __str__(self):
         return self.argomento
@@ -111,6 +112,7 @@ class Lab(models.Model):
         return self.nome + " - " + self.docker_name
 
 class CyberKillChain(models.Model):
+    intro = models.TextField(default='')
     recon = models.TextField()
     weapon = models.TextField()
     delivery = models.TextField()
