@@ -26,7 +26,7 @@
 
         <div class="row">
           <div class="col-md-6">
-            <div class="alert " style="color:black; background-color: transparent; border: 3px solid #00cae3; overflow: auto; clear:both;">
+            <div class="alert " style="color:black; background-color: transparent; border: 3px solid black; overflow: auto; clear:both;">
               <div style="float: left; width: 85%;">
                 <div><h3 style="margin: 0 0;">Filtra</h3></div><br />
                 Argomenti<br />
@@ -91,7 +91,7 @@
                           <button class="btn btn-primary" id="{{ laboratorio.pk }}_stop" onclick="return action_lab('stop_lab','{{ laboratorio.pk }}')" style="display:none;">Stoppa Lab</button>
                           <button class="btn btn-primary" id="{{ laboratorio.pk }}_start" onclick="return action_lab('start_lab','{{ laboratorio.pk }}')">Avvia Lab</button>
                         {% endif %} 
-                        <br />
+                        <span style="float: right;"><br /><a href="doc-lab-{{ laboratorio.pk }}.html">Documentazione</a></span>
                         <script>
 
                             function send_req(POST_REQUEST, lab){

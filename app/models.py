@@ -62,6 +62,7 @@ class Lab(models.Model):
     sotto_titolo = models.CharField(max_length=120, default='')
     docker_name = models.CharField(max_length=120)
     descrizione = models.TextField()
+    documentazione = models.TextField(default='')
     # cap_add=["NET_ADMIN"], detach=True, ports =ports_dict, name=name_lab, auto_remove=True, network=network_name_user
 
     NET_ADMIN = 'NET_ADMIN'

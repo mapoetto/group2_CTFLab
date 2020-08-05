@@ -93,6 +93,21 @@ def page_user(request):
     html_template = loader.get_template( 'argomenti.html' )
     return HttpResponse(html_template.render(context, request))
 
+def doc_lab(request):
+    page = request.get_full_path()
+    pk = page.split("-")
+    pk = pk[-1].split(".")
+    pk_arg = pk[0]
+    context = {}
+    labs = Lab.objects.get(pk=pk_arg)
+
+    context = {
+        'labs': labs,
+    }
+
+    html_template = loader.get_template( 'documentazione.html' )
+    return HttpResponse(html_template.render(context, request))
+
 def esercizi(request):
     context = {}
     labs = Lab.objects.all()

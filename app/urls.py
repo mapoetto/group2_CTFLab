@@ -19,8 +19,11 @@ urlpatterns = [
     path('client.ovpn', views.get_client_vpn, name='core_user'),
     path('core-user/', views.core_user, name='core_user'),
     
-    #per vedere gli esercizi
-    re_path(r'^arg-\d.html$', views.argomenti, name='core'),
+    #per vedere la spiegazione e la documentazione del lab
+    re_path(r'^doc-lab-\d.html$', views.doc_lab, name='doc_lab'),
+
+    #per vedere le spiegazioni degli argomenti dei lab
+    re_path(r'^arg-\d.html$', views.argomenti, name='argomenti'),
 
     # Matches any html file - to be used for gentella
     # Avoid using your .html in your resources.
