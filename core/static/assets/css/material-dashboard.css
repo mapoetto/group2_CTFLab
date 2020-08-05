@@ -37,10 +37,41 @@ html {
 
 .tag_args{
   padding-bottom: 2px;
-  padding-right: 8px;
+  padding-right: 12px;
   padding-left: 8px;
   border-radius: 15px 50px;
   transition: border 700ms;
+  margin: 3px;
+}
+
+.tag_args_clicked{
+  padding-bottom: 2px;
+  padding-right: 8px;
+  padding-left: 8px;
+  border-radius: 15px 50px;
+  background-color: black;
+  color: white;
+  margin: 3px;
+}
+
+.tag_lvl{
+  border: 1px solid black;
+  padding-bottom: 2px;
+  padding-right: 7px;
+  padding-left: 7px;
+  border-radius: 30px;
+  margin: 3px;
+}
+
+.tag_lvl_clicked{
+  border: 1px solid black;
+  padding-bottom: 2px;
+  padding-right: 7px;
+  padding-left: 7px;
+  border-radius: 30px;
+  background-color: black !important;
+  color: white;
+  margin: 3px;
 }
 
 .tag_args:hover{
@@ -54,6 +85,7 @@ html {
   padding-right: 7px;
   padding-left: 7px;
   border-radius: 30px;
+  margin: 3px;
 }
 
 @-ms-viewport {

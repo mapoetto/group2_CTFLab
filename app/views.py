@@ -17,6 +17,7 @@ from app.setup_docker_client import LOCAL_TUNNEL
 
 import html
 
+from .models import Tag_Level
 from .models import Tag_Args
 from .models import User
 from .models import CyberKillChain
@@ -95,9 +96,13 @@ def page_user(request):
 def esercizi(request):
     context = {}
     labs = Lab.objects.all()
+    args = Tag_Args.objects.all()
+    livelli = Tag_Level.objects.all()
 
     context = {
         'labs': labs,
+        'args': args,
+        'livelli': livelli,
     }
     html_template = loader.get_template( 'esercizi.html' )
     return HttpResponse(html_template.render(context, request))

@@ -4,6 +4,8 @@
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
 
 {% block content %}
 {% load keyvalue %}
@@ -21,6 +23,26 @@
             </div>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="alert " style="color:black; background-color: transparent; border: 3px solid #00cae3; overflow: auto; clear:both;">
+              <div style="float: left; width: 85%;">
+                <div><h3 style="margin: 0 0;">Filtra</h3></div><br />
+                Argomenti<br />
+                {% for argomento in args %}
+                  <a href="#"><span id="filtro_{{ argomento.pk }}" class="flt card-category tag_args filtro" style="display: inline-block;width: fit-content; border: 2px solid {{ argomento.colore }};">{{ argomento.argomento }}</span></a>
+
+                {% endfor %}
+                <br /><br />Livelli<br />
+                {% for livello in livelli %}
+                <a href="#"><span id="filtro_livello_{{ livello.pk }}" class="flt card-category tag_lvl filtro_lvl" style="display: inline-block;width: fit-content;  background-color: {{ livello.colore }}; color:white;">{{ livello.livello }}</span></a>
+
+               {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="row">
 
           {% for laboratorio in labs %}
@@ -30,7 +52,7 @@
             {% with name_lab="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id %}
             {% with lab_start_time="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_start_time" %}
             {% with lab_IP="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_IP" %}
-            <div class="col-md-6">
+            <div class="laboratorio col-md-6 filtro_livello_{{ laboratorio.livello.pk }} filtro_{{ laboratorio.argomento_1.pk }} filtro_{{ laboratorio.argomento_2.pk }} filtro_{{ laboratorio.argomento_3.pk }} filtro_{{ laboratorio.argomento_4.pk }}">
                 <div class="card">
                     <div class="card-header card-header-primary">
                       <h4 class="card-title ">{{ laboratorio.nome }}</h4>
@@ -138,8 +160,62 @@
           {% endfor %}
         </div>
 
-{% endblock content %}
+        <script src="/static/assets/js/core/jquery.min.js"></script>
 
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+        <script>
+          $( document ).ready(function() {
+              $(".flt").click(function() {
+                //se è già attivo il filtro
+                if ($(this).hasClass("tag_args_clicked")){
+                  $(this).removeClass("tag_args_clicked");
+                }else{
+                  $(this).addClass("tag_args_clicked");
+                }
+                
+                if ($(this).hasClass("tag_lvl_clicked")){
+                  $(this).removeClass("tag_lvl_clicked");
+                }else{
+                  $(this).addClass("tag_lvl_clicked");
+                }
+
+                var filtri = [];    
+
+                $(".tag_args_clicked").each(function( index ) {
+                  filtri.push($(this).attr("id"));
+                });
+
+                $(".tag_lvl_clicked").each(function( index ) {
+                  filtri.push($(this).attr("id"));
+                });
+
+                console.log(filtri);
+
+                $(".laboratorio").each(function( index ) {
+                  fLen = filtri.length;
+
+                  found_filtro = false;
+                  if(fLen > 0){
+                    for (i = 0; i < fLen; i++) {
+                      if($(this).hasClass(filtri[i]))
+                        found_filtro = true;
+                    }
+
+                    if(found_filtro == false){
+                      $(this).fadeOut( "slow", function() {});
+                    }else{
+                      $(this).fadeIn( "slow", function() {});
+                    }
+                  }else{
+                    $(this).fadeIn( "slow", function() {});
+                  }
+
+                });
+
+
+              });
+
+          });
+        </script>
+
+{% endblock content %}
 
