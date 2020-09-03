@@ -2,9 +2,9 @@ import json
 import docker
 import datetime
 import urllib
-from app.setup_docker_client import get_docker_client
-from app.setup_docker_client import LOCAL_TUNNEL
-
+from app.setup_docker_client import get_docker_client, LOCAL_TUNNEL
+from app.vpn_manage import check_server_vpn, create_server_vpn
+from app.notification_manage import insert_notification
 from .models import Lab
 
 from ipaddress import IPv4Interface
@@ -62,20 +62,14 @@ def manage(request):
         #                                                                    #
         ######################################################################
 
+        #Nome network custom
+        network_name_user = "network_userid_" + str(request.session["user_pk"])
+
         # Nome del container Docker per il Laboratorio
         name_lab = "labid_" + str(labo.pk) + "_userid_" + str(request.session["user_pk"])
 
-        # Nome per il certificato client dell VPN
-        name_client_ovpn = "userid_" + str(request.session["user_pk"])
-
         # Nome Immagine del DockerHub
         image_lab = labo.docker_name
-
-        # Nome della network custom associata all'utente
-        network_name_user = "network_userid_"+str(request.session["user_pk"])
-
-        # Nome del container VPN  NB: il container deve essere già in esecuzione e preconfigurato
-        name_VPN = "serverVPN" 
 
         # - START - Configurazioni per il comando docker.run 
         cap_lab = labo.cap_add
@@ -120,98 +114,15 @@ def manage(request):
             #                                                                    #
             ######################################################################
 
-            # - CHECK 1 -
-            # Proviamo a fare un get del containerVPN, perchè nel caso fallisca, viene eseguito l'except che stoppa tutto
-            # Non ha senso startare un laboratorio se non c'è il container VPN
-            client.containers.get(container_id=name_VPN)
-
-            # - CHECK 2 -
-            # Proviamo a fare un get della network Custom dell'utente, nel caso già abbia startato un'altro lab
-            try:
-                client.networks.get(network_id=network_name_user)
-            except docker.errors.NotFound:
-                #Nel caso non ci sia (poichè può essere stata eliminata dopo un tot di inutilizzo), la creiamo
-                #print("la rete custom dell'utente ancora non esiste, quindi la creiamo")
-                client.networks.create(name=network_name_user, driver="bridge")
-
-            # - CHECK 3 -
-            # Controlliamo se il server vpn è già connesso alla rete custom dell'utente
-            net_custom = client.networks.get(network_id=network_name_user) #prende i container collegati alla network 
-            found_vpn_connection = False
-            #print("\n\n -->" + json.dumps(net_custom.attrs))
             
-            #print("\n\n -->" + net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3])
+            if check_server_vpn(str(request.session["user_pk"]))==False:
+                response_list = {
+                    "error": "Attendere l'avvio del serverVPN"
+                }
+                message = json.dumps(response_list)
 
-            #Scorre tutti i container connessi alla network utente
-            for container in net_custom.attrs["Containers"]:
-                container_final = client.containers.get(container)
-                if container_final.attrs['Name'] == "/"+name_VPN: #se uno di questi è proprio il container VPN
-                    found_vpn_connection = True
+                return message
 
-            #se il serverVPN non è connesso alla rete custom, connettilo
-            if found_vpn_connection == False:
-                client_low.connect_container_to_network(container=name_VPN, net_id=network_name_user)
-            
-            # - CHECK 4 -
-            # Controlliamo se nel container vpn esiste già la configurazione per l'utente attuale
-            # La configurazione consiste nell'avere nel containerVPN, nella cartella etc/openvpn/ccd (path indicato quando si crea la configurazione del containerVPN)
-            # un file che rispecchi il nome di un client
-            # ed all'interno del file ci sia la stringa
-            # push "route 172.24.0.0 255.255.0.0"
-            # dove 172.24.0.0 è l'ip della subnet custom creata per l'utente e 255.255.0.0 la sua netmask
-            # dopodichè bisogna dare il comando seguente:
-            # iptables -t nat -A POSTROUTING -o $INTERFACE_USERID_1 -j MASQUERADE
-            # per dire al containerVPN di agire da NAT per quell'interfaccia
-            # $INTERFACE_USERID_1 è una variabile d'ambiente in cui setta l'interfaccia fisica del containerVPN su cui è connesso alla rete custom
-
-            cont_vpn = client.containers.get(name_VPN)
-            stdout = cont_vpn.exec_run(cmd="cd etc/openvpn/ccd && [ -f logss ] && echo \"File found!\"")
-
-            #net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3] è l'ip della subnet
-            #net_custom.attrs["IPAM"]["Config"][0]["Subnet"] è la network interface (ovvero l'ip con /16 alla fine)
-
-            if stdout.output != "File found!":
-                netmask_from_ip_interface = str(IPv4Interface(net_custom.attrs["IPAM"]["Config"][0]["Subnet"]).netmask)
-                str1 = "sh -c \'echo \\'push \"route "
-                str2 = "\" \\' > /etc/openvpn/ccd/"
-                command = str1 + net_custom.attrs["IPAM"]["Config"][0]["Subnet"][:-3] +" "+netmask_from_ip_interface + str2 + name_client_ovpn + "\'"
-                print("\n\n" + command)
-                stdout = cont_vpn.exec_run(cmd=command)
-                print("\n\n1--->> "+ str(stdout.output))
-                print("\n\n11--->> "+ str(stdout.exit_code))
-                print(command)
-
-                # se il primo comando è andato bene
-                if stdout.exit_code == 0:
-
-                    # setta una variabile d'ambiente in cui inserisce l'interfaccia fisica del containerVPN che è connessa alla network custom
-                    # 172.24.0.2 = ip del serverVPN nella rete custom = cont_vpn.attrs["NetworkSettings"]["Networks"][network_name_user]["IPAddress"]
-                    # export INTERFACE_USERID_1=$(ifconfig | sed -n '/addr:172.24.0.2/{g;H;p};H;x' | awk '{print $1}')
-
-                    name_variable_env = "INTERFACE_USERID_" + str(request.session["user_pk"])
-                    ip_serverVPN_in_rete_custom = str(cont_vpn.attrs["NetworkSettings"]["Networks"][network_name_user]["IPAddress"])
-                    command = "export "+name_variable_env+"=$(ifconfig | sed -n '/addr:"+ip_serverVPN_in_rete_custom+"/{g;H;p};H;x' | awk '{print $1}')"
-                    stdout = cont_vpn.exec_run(cmd=command)
-
-                    print("\n\n2--->> "+ str(stdout.output))
-                    print("\n\n22--->> "+ str(stdout.exit_code))
-
-                    # se il secondo comando è andato bene
-                    if stdout.exit_code == 0:
-                        # iptables -t nat -A POSTROUTING -o $INTERFACE_USERID_1 -j MASQUERADE
-
-                        command = "iptables -t nat -A POSTROUTING -o $"+name_variable_env+" -j MASQUERADE"
-                        stdout = cont_vpn.exec_run(cmd=command)
-                        print("\n\n3--->> "+ str(stdout.output))
-                        print("\n\n33--->> "+ str(stdout.exit_code))
-
-                        # se l'ultimo comando è andato male
-                        if stdout.exit_code != 0:
-                            pass #return
-                    else:
-                        pass #return
-                else:
-                    pass #return
 
             ######################################################################
             #                                                                    #
@@ -258,13 +169,15 @@ def manage(request):
                     # Prende l'ip del container startato
                     lab_ip = get_ip_by_container(name_lab,network_name_user)
 
-                    msg_response = "Laboratorio Startato !! <br /> IP Lab: " + lab_ip
+                    msg_response = "Laboratorio Avviato !! <br /> IP Lab: " + lab_ip
                     response_list = {
                         "response_action": "stop_container",
                         "msg_response" : msg_response,
                         "start_time": x.strftime("%m/%d/%Y, %H:%M:%S")
                     }
-                    
+
+                    insert_notification("Laboratorio "+labo.nome+" Avviato!", "#", request.session["user_pk"])
+
                     # Setta la sessione che serve al frontend
                     request.session[name_lab] = "running"
                     request.session[name_lab+"_start_time"] = x.strftime("%m/%d/%Y, %H:%M:%S")
@@ -281,6 +194,8 @@ def manage(request):
                         "response_action": "start_container"
                     }
                     
+                    insert_notification("Laboratorio "+labo.nome+" Stoppato!", "#", request.session["user_pk"])
+
                     #Togli il valore dalla sessione
                     try:
                         del request.session[name_lab]
@@ -300,7 +215,8 @@ def manage(request):
                         del request.session[name_lab+"_start_time"]
                         del request.session[name_lab+"_IP"]
                     except:
-                        print("Errore nel cancellare la sessione")
+                        print("Errore nel cancellare la sessione" )
+                        
 
                     msg_response = "FATAL ERROR - Laboratorio NON TROVATO !! <br />"
                     response_list = {
@@ -329,7 +245,7 @@ def manage(request):
 
 def get_ip_by_container(container_name, network_name):
 
-    client = docker.from_env()
+    client = get_docker_client(LOCAL_TUNNEL)
 
     try:
         net_custom = client.networks.get(network_id=network_name)
@@ -344,7 +260,7 @@ def get_ip_by_container(container_name, network_name):
 
 def prune_networks():
 
-    client = docker.from_env()
+    client = get_docker_client(LOCAL_TUNNEL)
 
     try:
         client.networks.prune()

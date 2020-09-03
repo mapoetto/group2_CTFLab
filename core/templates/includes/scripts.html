@@ -48,14 +48,68 @@
   <!-- Timer Labs-->
   
   <script>
-		$( document ).ready(function() {
-								
-			$('#lab01').click(function(ev) {
-
-
-
-			});
-							
-	});
+    function aggiorna_notifiche(clicked){
+      var POST_REQUEST = {
+        action: encodeURIComponent("get_notifications"),
+        click: clicked
+      }; 
+  
+      myObj = sendPost(csrftoken, "/core/", POST_REQUEST, function(cb, stat){
+        if(cb == "error"){
+            if(stat == "404"){ //not found
+            document.getElementById("result_notifications").innerHTML = "ERRORE ("+stat+")";
+            }else if(stat == "0"){
+                document.getElementById("result_notifications").innerHTML = "<img src=\"static/assets/img/loading.gif\" style=\"max-width:50px;\">";
+            }else{//altri errori, tipo 500 o 403
+                document.getElementById("result_notifications").innerHTML = "Errore: " + stat;
+            }
+        }else if (typeof cb.error != "undefined"){ //errore custom
+            document.getElementById("result_notifications").innerHTML = "Errore: " + cb.error;
+        }else{
+          
+          if(typeof cb.num_notifiche != "undefined"){
+            if(parseInt(cb.num_notifiche) == 0){
+  
+              console.log("Nessuna nuova notifica!!");
+              $("#result_notifications").html("Nessuna nuova notifica...");
+              $("#num_notifications").html("0");
+              $("#num_notifications").css("display","none");
+            }else{
+              console.log("CI SONO NOTIFICHE PER TE!("+cb.num_notifiche+")");
+              $("#num_notifications").html(""+cb.num_notifiche+"");
+              $("#num_notifications").css("display","inline");
+              console.log("Notifiche->"+cb.notifiche);
+              string_all_not="";
+              console.log("prima"+typeof cb.notifiche);
+              cb.notifiche = JSON.parse(cb.notifiche);
+              console.log("dopo"+typeof cb.notifiche);
+              Object.keys(cb.notifiche).forEach(key => {
+                console.log(cb.notifiche[key]["testo"]); // the value of the current key.
+                string_all_not += '<a class="dropdown-item" href="'+cb.notifiche[key]["link"]+'">'+cb.notifiche[key]["testo"]+'</a>';
+              });
+              $("#result_notifications").html(string_all_not);
+              if (clicked=="si"){
+                $("#num_notifications").html("0");
+                $("#num_notifications").css("display","none");
+              }else{
+                console.log("non sono stato clickato, quindi non ti mostro nulla")
+              }
+            }
+          }else{
+            console.log("non ci sono notifiche per te :(")
+          }
+        }
+      });
+    }
+    $( document ).ready(function() {
+      aggiorna_notifiche("no");
+      $("#open_notification").click(function() {
+        if(!($("#result_notifications").hasClass("show"))){
+          aggiorna_notifiche("si");
+        }else{
+          console.log("Già sei visibile, quindi non aggiorno")
+        }
+      });
+    });
   </script>
   

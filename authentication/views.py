@@ -13,6 +13,8 @@ from app.models import User
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
+from app.vpn_manage import check_server_vpn, create_server_vpn
+import threading
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -28,7 +30,15 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 request.session["user_pk"] = user.pk
-                return redirect("/")
+
+                if check_server_vpn(user.pk) == False:
+
+                    t = threading.Thread(target=create_server_vpn,args=[user.pk],daemon=True)
+                    t.start()
+
+                    return redirect("/?VPN_CREATING")
+
+                return redirect("/?success")
             else:    
                 msg = 'Invalid credentials'    
         else:

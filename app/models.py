@@ -25,6 +25,13 @@ def to_dict(instance):
         data[f.name] = [i.id for i in f.value_from_object(instance)]
     return data
 
+class Notifica(models.Model):
+    testo = models.CharField(max_length=120)
+    link = models.CharField(max_length=220)
+    destinatario = models.CharField(max_length=50) #a chi è destinata la notifica (ID dell'utente - oppure TUTTI)
+
+#Ogni volta che si crea una notifica, si fa il check per vedere se l'id di quella notifica esiste nella tab notifica_vista
+
 class User(AbstractBaseUser):
     nome = models.CharField(max_length=120)
     cognome = models.CharField(max_length=120)
@@ -33,6 +40,8 @@ class User(AbstractBaseUser):
     professione = models.CharField(max_length=120)
     email = models.EmailField(max_length=120, unique=True, error_messages={'unique': ("Email già utilizzata")})
     data = models.DateTimeField(auto_now=False, auto_now_add=True)
+    porta_vpn = models.CharField(max_length=10,default='')
+    id_ctfd = models.CharField(max_length=10,default='')
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
@@ -41,6 +50,12 @@ class User(AbstractBaseUser):
     PASSWORD_FIELD = 'password'
     PROFESSIONE_FIELD = 'professione'
     REQUIRED_FIELDS = ['email','username','nome','cognome','password','professione']
+
+class Notifica_vista(models.Model):
+    stato = models.CharField(max_length=120) #vista
+    user_id = models.ForeignKey(User, related_name="user_id", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    notifica_id = models.ForeignKey(Notifica, related_name="notifica_id", default=None, blank=True, null=True, on_delete=models.CASCADE)
+
 
 class Tag_Args(models.Model):
     colore = models.CharField(max_length=7, unique=True)# #FF5733

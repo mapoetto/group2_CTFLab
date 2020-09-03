@@ -5,7 +5,7 @@ import time
 #SETUP sul SERVER DOCKER:
 # rimuovi il docker pid: sudo rm /var/run/docker.pid
 # stoppa il servizio docker: sudo systemctl stop docker
-# starta il demone docker sulla tua porta: sudo dockerd -H tcp://0.0.0.0:2375
+# starta il demone docker sulla tua porta: sudo dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
 
 
 
@@ -20,7 +20,7 @@ ports_dict = {'80/tcp': 123}
 
 FULL_PATH_SSH_KEY = "/home/mapoetto/Scrivania/PW/django/django/challange.pem"
 USER_SERVER = "ubuntu"
-DNS_NAME_SERVER = "ec2-52-3-245-151.compute-1.amazonaws.com"
+DNS_NAME_SERVER = "ec2-3-85-102-204.compute-1.amazonaws.com"
 LOCAL_PORT = "7000"
 REMOTE_PORT = "2375"
 
@@ -36,13 +36,14 @@ def get_docker_client(url_server_docker, low=False):
 
         result = subprocess.check_output(cmd_check_tunnel, shell=True)
 
-        print("\n\n\nResult of tunnel-> "+ str(result) + " \n\n\n")
+        #print("\n\n\nResult of tunnel-> "+ str(result) + " \n\n\n")
 
-        if len(str(result)) > 5: #vuol dire che ha stampato "no tunnel open"
+        if "no tunnel open" in str(result): #vuol dire che ha stampato "no tunnel open"
             #print("non c'è il tunnel")
+            #print("\n\nIl Tunnel non c'è")
             raise Exception("Il Tunnel non c'è")
         else:
-            #print("il tunnell c'è")
+            #print("\n\nil tunnell c'è ->"+str(result))
             pass
 
         if low == False:
@@ -57,7 +58,7 @@ def get_docker_client(url_server_docker, low=False):
         #Facciamo il set up del tunnel ssh
 
         #Comando: ssh -i "challange.pem" ubuntu@ec2-52-3-245-151.compute-1.amazonaws.com -Nf -L  7000:127.0.0.1:2375
-        cmd = "ssh -i \""+FULL_PATH_SSH_KEY+"\" "+USER_SERVER+"@"+DNS_NAME_SERVER+" -Nf -L  "+LOCAL_PORT+":127.0.0.1:"+REMOTE_PORT+""
+        cmd = "ssh -i \""+FULL_PATH_SSH_KEY+"\" "+USER_SERVER+"@"+DNS_NAME_SERVER+" -Nf -L  "+LOCAL_PORT+":127.0.0.1:"+REMOTE_PORT
         
         result = subprocess.check_output(cmd, shell=True)
 
@@ -70,9 +71,10 @@ def get_docker_client(url_server_docker, low=False):
             
             if len(str(result)) > 5: #vuol dire che ha stampato "no tunnel open"
                 #print("non c'è il tunnel")
+                print("\n\nImpossibile stabilire il tunnel ssh, non è possibile comunicare con la macchina docker")
                 raise Exception("Impossibile stabilire il tunnel ssh, non è possibile comunicare con la macchina docker")
             else:
-                #print("il tunnell c'è")
+                print("\n\nil tunnell c'è")
                 pass
 
             if low == False:

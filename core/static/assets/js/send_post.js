@@ -10,8 +10,8 @@ function sendPost(csrf_token, url, POST_REQUEST, cb) {
 				var myObj = {
 					data:  this.responseText
 				};
-				alert("Il parser JSON ha restituito un errore (" + err + ") mentre provava a contattare la pagina " + url + " \n Responso:" + this.responseText);
-				console.log(this.responseText);
+				//alert("Il parser JSON ha restituito un errore (" + err + ") mentre provava a contattare la pagina " + url + " \n Responso:" + this.responseText);
+				console.log("Il parser JSON ha restituito errore");
 			}
 				cb(myObj);
 			
@@ -28,7 +28,7 @@ function sendPost(csrf_token, url, POST_REQUEST, cb) {
 		xhttp.send("data=" + dataPost);
 		
 	} else {
-	  alert('Impossibile eseguire la richiesta, connettersi ad internet');
+	  //alert('Impossibile eseguire la richiesta, connettersi ad internet');
 	  cb("error", "Connessione internet assente");
 	}
 }
