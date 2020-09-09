@@ -14,6 +14,7 @@ from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
 from app.vpn_manage import check_server_vpn, create_server_vpn
+from app.middleware import *
 import threading
 
 def login_view(request):
@@ -30,6 +31,11 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 request.session["user_pk"] = user.pk
+
+                if check_userCTFd_exists(user.pk) == False:
+
+                    t2 = threading.Thread(target=insert_user,args=[user.pk],daemon=True)
+                    t2.start()
 
                 if check_server_vpn(user.pk) == False:
 

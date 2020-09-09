@@ -2,10 +2,13 @@ import docker
 import subprocess
 import time
 
+from app.config_const import *
+
 #SETUP sul SERVER DOCKER:
 # rimuovi il docker pid: sudo rm /var/run/docker.pid
 # stoppa il servizio docker: sudo systemctl stop docker
 # starta il demone docker sulla tua porta: sudo dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+#sudo rm /var/run/docker.pid && sudo systemctl stop docker && sudo dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
 
 
 
@@ -18,13 +21,7 @@ ports_dict = {'80/tcp': 123}
 # ssh -i "challange.pem" ubuntu@ec2-52-3-245-151.compute-1.amazonaws.com -Nf -L  7000:127.0.0.1:2375
 # -Nf = in background e senza interattività
 
-FULL_PATH_SSH_KEY = "/home/mapoetto/Scrivania/PW/django/django/challange.pem"
-USER_SERVER = "ubuntu"
-DNS_NAME_SERVER = "ec2-3-85-102-204.compute-1.amazonaws.com"
-LOCAL_PORT = "7000"
-REMOTE_PORT = "2375"
 
-LOCAL_TUNNEL = "tcp://127.0.0.1:"+LOCAL_PORT+""
 
 def get_docker_client(url_server_docker, low=False):
 

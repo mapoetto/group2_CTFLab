@@ -110,7 +110,7 @@
                                     if(stat == "404"){ //not found
                                     document.getElementById("result_"+lab).innerHTML = "ERRORE ("+stat+")";
                                     }else if(stat == "0"){
-                                        document.getElementById("result_"+lab).innerHTML = "<img src=\"static/assets/img/loading.gif\">";
+                                        document.getElementById("result_"+lab).innerHTML = "<img src=\"static/assets/img/loading.gif\" style=\"width: 100%; max-width: 130px;\">";
                                     }else{//altri errori, tipo 500 o 403
                                         document.getElementById("result_"+lab).innerHTML = "Errore: " + stat;
                                     }

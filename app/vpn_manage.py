@@ -4,7 +4,9 @@ import subprocess
 import random
 import json
 from app.models import User
-from app.setup_docker_client import get_docker_client, LOCAL_TUNNEL
+
+from app.config_const import *
+from app.setup_docker_client import get_docker_client
 
 #       WORKFLOW
 #
@@ -61,7 +63,7 @@ def create_server_vpn(user_id):
     client_low = get_docker_client(LOCAL_TUNNEL, True)
 
     #url sul quale sarà attivo il server VPN
-    url_attuale = "ec2-3-85-102-204.compute-1.amazonaws.com"
+    url_attuale = DNS_NAME_SERVER
 
     #export ID_UTENTE_ID=Utente1
     nome_certificato_utente = "Utente_" + user_id

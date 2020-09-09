@@ -13,7 +13,7 @@ import json
 import os
 
 from app.setup_docker_client import get_docker_client
-from app.setup_docker_client import LOCAL_TUNNEL
+from app.config_const import *
 
 import html
 
@@ -28,6 +28,9 @@ from . import notification_manage as notification_manager
 
 @login_required(login_url="/login/")
 def index(request):
+
+    
+
     return render(request, "index.html")
 
 @login_required(login_url="/login/")

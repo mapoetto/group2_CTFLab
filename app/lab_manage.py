@@ -2,14 +2,15 @@ import json
 import docker
 import datetime
 import urllib
-from app.setup_docker_client import get_docker_client, LOCAL_TUNNEL
+from app.setup_docker_client import get_docker_client
+from app.config_const import *
 from app.vpn_manage import check_server_vpn, create_server_vpn
 from app.notification_manage import insert_notification
 from .models import Lab
 
 from ipaddress import IPv4Interface
 
-#TO-DO
+#TO-DO 
 
 # IMPLEMENTARE TIMER CHE STOPPA AUTOMATICAMENTE TUTTO DOPO UN DET.TEMPO
 # SPAWNING DEL PROCESSO CHE CONTROLLA L'UTENZA
