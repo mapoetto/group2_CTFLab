@@ -8,6 +8,8 @@ from app.config_const import *
 # rimuovi il docker pid: sudo rm /var/run/docker.pid
 # stoppa il servizio docker: sudo systemctl stop docker
 # starta il demone docker sulla tua porta: sudo dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+
+#Comando da dare in caso si voglia fare una macchina docker
 #sudo rm /var/run/docker.pid && sudo systemctl stop docker && sudo dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
 
 
@@ -26,7 +28,7 @@ ports_dict = {'80/tcp': 123}
 def get_docker_client(url_server_docker, low=False):
 
     #Comando per controllare se la porta in questione è usata
-    cmd_check_tunnel = "nc -z localhost "+LOCAL_PORT+" || echo \"no tunnel open\""
+    cmd_check_tunnel = "nc -z localhost "+str(LOCAL_PORT)+" || echo \"no tunnel open\""
 
     #Provo a prendere il client 
     try:
@@ -55,7 +57,7 @@ def get_docker_client(url_server_docker, low=False):
         #Facciamo il set up del tunnel ssh
 
         #Comando: ssh -i "challange.pem" ubuntu@ec2-52-3-245-151.compute-1.amazonaws.com -Nf -L  7000:127.0.0.1:2375
-        cmd = "ssh -i \""+FULL_PATH_SSH_KEY+"\" "+USER_SERVER+"@"+DNS_NAME_SERVER+" -Nf -L  "+LOCAL_PORT+":127.0.0.1:"+REMOTE_PORT
+        cmd = "ssh -i \""+FULL_PATH_SSH_KEY+"\" "+USER_SERVER+"@"+DNS_NAME_SERVER+" -Nf -L  "+str(LOCAL_PORT)+":127.0.0.1:"+str(REMOTE_PORT)
         
         result = subprocess.check_output(cmd, shell=True)
 

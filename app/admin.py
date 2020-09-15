@@ -12,6 +12,7 @@ from .models import Tag_Args
 from .models import Tag_Level
 from .models import CTFd_configs
 from .models import Notifica
+from .models import SSHTunnel_configs
 
 # Register your models here.
 admin.site.register(User)
@@ -20,4 +21,5 @@ admin.site.register(CyberKillChain)
 admin.site.register(Tag_Args)
 admin.site.register(Tag_Level)
 admin.site.register(CTFd_configs)
+admin.site.register(SSHTunnel_configs)
 admin.site.register(Notifica)

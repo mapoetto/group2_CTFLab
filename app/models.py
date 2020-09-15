@@ -90,7 +90,17 @@ class CTFd_configs(models.Model):
             raise ValidationError('E\' possibile avere una sola istanza di CTFd_configs')
         return super(CTFd_configs, self).save(*args, **kwargs)
 
-
+class SSHTunnel_configs(models.Model):
+    FULL_PATH_SSH_KEY = models.CharField(max_length=220)
+    USER_SERVER = models.CharField(max_length=64)
+    DNS_NAME_SERVER = models.CharField(max_length=220)
+    LOCAL_PORT = models.IntegerField(validators=[validate_flag])
+    REMOTE_PORT = models.IntegerField(validators=[validate_flag])
+    
+    def save(self, *args, **kwargs):
+        if not self.pk and SSHTunnel_configs.objects.exists():
+            raise ValidationError('E\' possibile avere una sola istanza di SSHTunnel_config')
+        return super(SSHTunnel_configs, self).save(*args, **kwargs)
 
 class Lab(models.Model):
     nome = models.CharField(max_length=120)

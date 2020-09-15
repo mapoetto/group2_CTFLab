@@ -1,4 +1,5 @@
 from app.models import CTFd_configs
+from app.models import SSHTunnel_configs
 
 ######################################################################
 #                                                                    #
@@ -26,10 +27,22 @@ else:
 #                       DOCKER API - SSH TUNNEL                      #
 #                                                                    #
 ######################################################################
-FULL_PATH_SSH_KEY = "/home/mapoetto/Scrivania/PW/django/django/challange.pem"
-USER_SERVER = "ubuntu"
-DNS_NAME_SERVER = "ec2-3-85-164-96.compute-1.amazonaws.com"
-LOCAL_PORT = "7000"
-REMOTE_PORT = "2375"
+FULL_PATH_SSH_KEY = ""
+USER_SERVER = ""
+DNS_NAME_SERVER = ""
+LOCAL_PORT = ""
+REMOTE_PORT = ""
 
-LOCAL_TUNNEL = "tcp://127.0.0.1:"+LOCAL_PORT+""
+
+if SSHTunnel_configs.objects.exists():
+    conf= SSHTunnel_configs.objects.first()
+    FULL_PATH_SSH_KEY = conf.FULL_PATH_SSH_KEY
+    USER_SERVER = conf.USER_SERVER
+    DNS_NAME_SERVER = conf.DNS_NAME_SERVER
+    LOCAL_PORT = conf.LOCAL_PORT
+    REMOTE_PORT = conf.REMOTE_PORT   
+
+    LOCAL_TUNNEL = "tcp://127.0.0.1:"+str(LOCAL_PORT)+""
+else:
+   print("Inserire la configurazione del Tunnel SSH")
+
