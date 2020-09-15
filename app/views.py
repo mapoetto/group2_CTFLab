@@ -90,13 +90,18 @@ def argomenti(request):
 def page_user(request):
     context = {}
     print(request.user.id)
-    user_me = User.objects.get(pk=request.user.id)
+    try:
+        user_me = User.objects.get(pk=request.user.id)
 
-    context = {
-        'user_me': user_me,
-    }
-    html_template = loader.get_template( 'page-user.html' )
-    return HttpResponse(html_template.render(context, request))
+        context = {
+            'user_me': user_me,
+        }
+        html_template = loader.get_template( 'page-user.html' )
+        return HttpResponse(html_template.render(context, request))
+    except User.DoesNotExist:
+        #Loggando come admin e visualizzando la dashboard con questo try-except se si clicca su profilo ti ritorna al pannello admin 
+        # Da modficiare il ritorno se si vuole, ma non omettere perchè genera l'eccezione
+        return redirect("/admin/")
 
 def doc_lab(request):
     page = request.get_full_path()

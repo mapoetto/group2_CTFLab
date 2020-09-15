@@ -15,7 +15,9 @@ from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
 from app.vpn_manage import check_server_vpn, create_server_vpn
 from app.middleware import *
+from django.core.exceptions import ObjectDoesNotExist
 import threading
+
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -29,22 +31,27 @@ def login_view(request):
             password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
-                request.session["user_pk"] = user.pk
+                try:
+                    login(request, user)
+                    request.session["user_pk"] = user.pk
+                
+                    if check_userCTFd_exists(user.pk) == False:
+                        
+                        t2 = threading.Thread(target=insert_user,args=[user.pk],daemon=True)
+                        t2.start()
 
-                if check_userCTFd_exists(user.pk) == False:
+                    if check_server_vpn(user.pk) == False:
 
-                    t2 = threading.Thread(target=insert_user,args=[user.pk],daemon=True)
-                    t2.start()
+                        t = threading.Thread(target=create_server_vpn,args=[user.pk],daemon=True)
+                        t.start()
 
-                if check_server_vpn(user.pk) == False:
+                        return redirect("/?VPN_CREATING")
 
-                    t = threading.Thread(target=create_server_vpn,args=[user.pk],daemon=True)
-                    t.start()
-
-                    return redirect("/?VPN_CREATING")
-
-                return redirect("/?success")
+                    return redirect("/?success")
+                
+                except User.DoesNotExist:
+                    #print("Tutto ok sir")
+                    return redirect("/admin/")
             else:    
                 msg = 'Invalid credentials'    
         else:
