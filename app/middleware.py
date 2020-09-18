@@ -9,7 +9,7 @@ from .models import User
 def get_random_password(): 
     alphabet = string.ascii_letters + string.digits
     password = ''.join(secrets.choice(alphabet) for i in range(10)) # for a 10-character password
-    #print(password)
+    print(password)
     return(password)
 
 #Funzione GET per tutte le challenge

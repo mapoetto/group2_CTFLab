@@ -56,6 +56,12 @@ class User(AbstractBaseUser):
     PROFESSIONE_FIELD = 'professione'
     REQUIRED_FIELDS = ['email','username','nome','cognome','password','professione']
 
+    #is_staff = models.BooleanField(default=False)
+
+    #@property
+    #def is_staff(self):
+    #    return self.is_staff
+
 class Notifica_vista(models.Model):
     stato = models.CharField(max_length=120) #vista
     user_id = models.ForeignKey(User, related_name="user_id", default=None, blank=True, null=True, on_delete=models.CASCADE)
@@ -112,6 +118,8 @@ class Lab(models.Model):
     categoria = models.CharField("Categoria della challenge",max_length=120, default='')
     valore_flag = models.IntegerField("Punteggio della flag",validators=[validate_flag], default=10) #deve essere numerico
     # cap_add=["NET_ADMIN"], detach=True, ports =ports_dict, name=name_lab, auto_remove=True, network=network_name_user
+    hint = models.CharField(max_length=220, default='', blank=True, null=True)
+    hint_cost = models.IntegerField("Costo del Hint",validators=[validate_flag], default=4, blank=True, null=True)
 
     NET_ADMIN = 'NET_ADMIN'
     TRUE = 'True'
