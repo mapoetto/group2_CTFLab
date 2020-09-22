@@ -45,8 +45,7 @@ def manage(request):
                         notifiche["x_utente_"+str(notifica.pk)]["testo"] = notifica.testo
                         notifiche["x_utente_"+str(notifica.pk)]["link"] = notifica.link
                         if POST_VALUES["click"] == "si":
-                            insert = Notifica_vista(stato="vista", user_id=User.objects.get(pk=request.session["user_pk"]), notifica_id=Notifica.objects.get(pk=notifica.pk))
-                            insert.save()
+                            Notifica.objects.filter(pk=notifica.pk).delete()
                         num_notifiche= num_notifiche + 1
                         #print("NOTIFICA DA VEDERE1")
 

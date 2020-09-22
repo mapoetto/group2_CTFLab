@@ -30,7 +30,9 @@ from django.core.exceptions import ObjectDoesNotExist
 @login_required(login_url="/login/")
 def index(request):
 
-    context = {}
+    me = User.objects.get(pk=request.session["user_pk"])
+
+    context = {"nome": str(me.nome).title()}
 
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
