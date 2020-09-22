@@ -1,0 +1,197 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Tables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+    <script>
+        function show_risposta(id){
+            $("#risposta_"+id).fadeToggle();
+        }
+       $( document ).ready(function() {
+
+
+
+       }); 
+    </script>
+        <div class="row">
+            <div class="col-md-10">
+                <h2>Guida alla Piattaforma - FAQ<br /></h2><br />
+            </div>
+        </div> 
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title " onclick="show_risposta('1');" style="cursor:pointer;">Qual è lo scopo della piattaforma?</h4>
+                    </div>
+                    <div class="card-body" style="display:none;" id="risposta_1">
+                      <div class="table-responsive">
+                            Fare in modo che aspiranti PenetrationTester possano esercitarsi
+                        <br />
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title " onclick="show_risposta('2');" style="cursor:pointer;">Come mi esercito?</h4>
+                    </div>
+                    <div class="card-body" style="display:none;" id="risposta_2">
+                      <div class="table-responsive">
+                        nella sezione esercizi lanci un lab... etc...
+                        <br />
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title " onclick="show_risposta('3');" style="cursor:pointer;">Perchè è importante la cyberkillchain?</h4>
+                    </div>
+                    <div class="card-body" style="display:none;" id="risposta_3">
+                      <div class="table-responsive">
+                            perchè insegna come i professionisti fanno attacchi...
+                        <br />
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title " onclick="show_risposta('4');" style="cursor:pointer;">Come mi collego al laboratorio?</h4>
+                    </div>
+                    <div class="card-body" style="display:none;" id="risposta_4">
+                      <div class="table-responsive">
+                            In VPN, e poi usi NMAP
+                        <br />
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title " onclick="show_risposta('5');" style="cursor:pointer;">Come funziona nmap?</h4>
+                    </div>
+                    <div class="card-body" style="display:none;" id="risposta_5">
+                      <div class="table-responsive">
+                            <b>nmap è uno strumento indispensabile per chi fa penetration Testing.</b><br />
+                            <p>
+                                Avere accesso ad una rete può sembrare interessante, ma non molto se non abbiamo strumenti che ci permettano di capire cos’altro vi è all’interno della rete. Questo può essere risolto usando strumenti come nmap che permette di scansione sia piccole che grandi rete e di analizzare le porte utilizzate e le macchine accese all’interno di queste. 
+                        Nmap è fortunatamente multipiattaforma e non necessita di particolari ecosistemi per essere usato: ci basterà aprire un terminale ed eseguire il comando <b>nmap</b> .
+                            </p>
+                        <p>
+                            Tuttavia il comando nmap necessita almeno che sia specificato l’host target su cui eseguire i comandi. 
+                        Ciò significa che dobbiamo un minimo conoscere la rete in cui siamo entrati. 
+                        In tal senso ci viene in aiuto un altro comando molto utile che è <b>ifconfig</b>.
+                        Lanciando il comando ifconfig riusciamo ad ottenere l’ip che è ci è stato assegnato.</p>
+                        <p>
+                            <div style="padding: 20px; background-color:rgb(230, 230, 230); border: 0.5px solid black; width: 50%;">
+                            
+                                mtanrw@macOS-system:~$ ifconfig <br>
+                                lo0: flags=8049 &lt;UP,LOOPBACK,RUNNING,MULTICAST&gt; mtu 16384 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;options=1203&lt;RXCSUM,TXCSUM,TXSTATUS,SW_TIMESTAMP&gt; <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;inet 127.0.0.1 netmask 0xff000000 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;inet6 ::1 prefixlen 128 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;inet6 fe80::1%lo0 prefixlen 64 scopeid 0x1 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;nd6 options=201&lt;PERFORMNUD,DAD&gt; <br>
+                                gif0: flags=8010&lt;POINTOPOINT,MULTICAST&gt; mtu 1280 <br>
+                                stf0: flags=0&lt;&gt; mtu 1280 <br>
+                                en0: flags=8863&lt;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST&gt; mtu 1500 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;options=400&lt;CHANNEL_IO&gt; <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;ether 78:4f:43:77:83:60 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;inet6 fe80::c47:5881:4da1:810%en0 prefixlen 64 secured scopeid 0x5 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;inet 192.168.1.3 netmask 0xffffff00 broadcast 192.168.1.255 <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;nd6 options=201&lt;PERFORMNUD,DAD&gt; <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;media: autoselect <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;status: active <br> 
+                                </div>
+                        </p>
+                        <p>
+                            In questo caso ci è stato assegnato l'indirizzo 192.168.1.3. A questo punto potremmo lanciare il comando nmap su tutta la sottorete a cui questo IP associato a noi appartiane. Per scoprirlo, possiamo anche lanciare il comando <b>ipcalc</b> ottenendo l’indirizzo IP della rete e la maschera di sottorete. 
+                            <p>
+                                <div style="padding: 20px; background-color:rgb(230, 230, 230); border: 0.5px solid black; width: 50%;">
+                                
+                                    mtanrw@macOS-system:~$ ipcalc 192.168.1.3 <br>
+                                    Address:&nbsp;&nbsp;&nbsp;192.168.1.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11000000.10101000.00000001.&nbsp;00000011 <br>
+                                    Netmask:&nbsp;&nbsp;&nbsp;255.255.255.0&nbsp;=&nbsp;24&nbsp;&nbsp;&nbsp;11111111.11111111.11111111.&nbsp;00000000 <br>
+                                    Wildcard:&nbsp;&nbsp;0.0.0.255&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00000000.00000000.00000000. 11111111 <br>
+                                    =&gt; <br>
+                                    Network:&nbsp;&nbsp;&nbsp;192.168.1.0/24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11000000.10101000.00000001.&nbsp;00000000 <br>
+                                    HostMin:&nbsp;&nbsp;&nbsp;192.168.1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11000000.10101000.00000001.&nbsp;00000001 <br>
+                                    HostMax:&nbsp;&nbsp;&nbsp;192.168.1.254&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11000000.10101000.00000001.&nbsp;11111110 <br>
+                                    Broadcast:&nbsp;192.168.1.255&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11000000.10101000.00000001.&nbsp;11111111 <br>
+                                    Hosts/Net:&nbsp;254&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Class C, Private Internet
+                                    </div>
+                            </p>
+                        </p>
+                        <p>
+                            Abbiamo ottenuto che la maschera di sottorete è /24. 
+                            A questi punto lanciamo il comando <b>nmap 192.168.0.0/24</b>. 
+                        </p>
+                        <p>
+                            Questo comando, come è prevedibile, impiegherà un po’ di tempo per essere eseguito data la mole di pacchetti che è costretto ad inviare. 
+                            Per questo potremmo usare il flag -F affinché venga scansionato  solo un sottogruppo di porte, ovvero quelle maggiormente utilizzate 
+                            dalla quasi totalità dei servizi, accelerando di molto l’operazione. Lanciamo quindi: <br>
+                        <p>
+                        
+                        </p>
+                            <div style="padding: 20px; background-color:rgb(230, 230, 230); border: 0.5px solid black; width: 50%;">
+                            mtanrw@macOS-system:~$ nmap -F 192.168.0.0/24 <br>
+                        </div>
+                        </p>     
+                        <p>
+                            Potremmo definire <b>target discovery</b> questa fase della reiconnessance, dove scopriamo quali sono gli indirizzi ip delle macchine in esecuzione nella sottorete. <br>
+                        </p>
+                        <p>
+                            Proviamo a passare da una target Discovery ad una <b>target classification</b>. 
+                        Usiamo ancora nmap, ma questa volta lanciamolo non più su tutta la sottorete ma su uno degli ip che abbiamo trovato con la precedente scansione. Sfruttiamo i flag -sS che esamina tutte le porte dell’ip indicato successivamente, ma senza mai completare il threeway handshake della connessione tcp.  Questo risulta in una scansione più veloce (viene inviato un solo pacchetto per porta, il <b>syn</b> e se ne riceve uno solo, il <b>syn-ack</b>) ma anche meno intrusiva e più silenziosa. <br>
+                        Questo tipo di scan, utilizzando una “connesione semi aperta” necessita di privilegi di root per la gestione della connessione tcp. Per questo va lanciato con sudo:
+                        
+                        <p>
+                            <div style="padding: 20px; background-color:rgb(230, 230, 230); border: 0.5px solid black; width: 50%;">
+                            mtanrw@macOS-system:~$ sudo nmap -sS 192.168.1.254 <br>
+                            Nmap scan report for 192.168.1.201 <br>
+                        Host is up (0.0040s latency).  <br>
+                        Not shown: 991 closed ports  <br>
+                        PORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STATE&nbsp;&nbsp;&nbsp;&nbsp;SERVICE  <br>
+                        53/tcp&nbsp;&nbsp;&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domain  <br>
+                        80/tcp&nbsp;&nbsp;&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http  <br>
+                        139/tcp&nbsp;&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;netbios-ssn  <br>
+                        443/tcp&nbsp;&nbsp;&nbsp;filtered&nbsp;https  <br>
+                        445/tcp&nbsp;&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;microsoft-ds  <br>
+                        631/tcp&nbsp;&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ipp  <br>
+                        8080/tcp&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http-proxy  <br>
+                        8888/tcp&nbsp;&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sun-answerbook  <br>
+                        49152/tcp&nbsp;open&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unknown  <br>
+                        MAC Address: 20:B0:01:93:BF:BA (Technicolor)  <br>
+                        </div>
+                        </p>
+                        
+                        </p>
+                        <br />
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+

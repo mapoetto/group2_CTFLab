@@ -2,6 +2,7 @@ import json
 import urllib
 from app.models import Notifica, Notifica_vista
 from app.models import User
+from django.db.models import Q
 
 def decode_input(inputs):
 
@@ -50,14 +51,15 @@ def manage(request):
                         #print("NOTIFICA DA VEDERE1")
 
             except Notifica.DoesNotExist: #non ci sono notifiche fatte personalmente per me
-                printr("non ci sono notifiche fatte personalmente per me1")
+                print("non ci sono notifiche fatte personalmente per me1")
                 pass
 
             try:
                 notifiche_per_tutti = Notifica.objects.filter(destinatario="tutti")
                 for notifica in notifiche_per_tutti:
                     try:
-                        vista = Notifica_vista.objects.get(notifica_id=notifica.pk) #se ci sta vuol dire che è già stata vista, e non dobbiamo metterla
+                        vista = Notifica_vista.objects.get(Q(notifica_id=notifica.pk) & Q(user_id=request.session["user_pk"])) #se ci sta vuol dire che è già stata vista, e non dobbiamo metterla
+                        
                         if vista.stato == "vista":
                             #print("Questa notifica già l'ho vista2")
                             pass

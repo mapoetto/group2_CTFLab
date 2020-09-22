@@ -19,19 +19,51 @@ import html
 
 from .models import Tag_Level
 from .models import Tag_Args
-from .models import User
+from .models import User, Statistiche
 from .models import CyberKillChain
 from .models import Lab
 from . import lab_manage as lab_manager
 from . import user_manage as user_manager
 from . import notification_manage as notification_manager
+from django.core.exceptions import ObjectDoesNotExist
 
 @login_required(login_url="/login/")
 def index(request):
 
-    
+    return_classifica = {}
+    tot_pers = 0
 
-    return render(request, "index.html")
+    classifica = Statistiche.objects.all().order_by('punteggio')
+    for utente in classifica:
+        temp_user = User.objects.get(pk=utente.user_id.pk)
+        return_classifica[temp_user.username] = utente.punteggio
+        tot_pers += 1
+
+    try:
+        my_stats = Statistiche.objects.get(user_id=User.objects.get(pk=request.session["user_pk"]))
+        argomenti = my_stats.guide_lette
+        flags = my_stats.flag_trovate
+        punteggio = my_stats.punteggio
+        labs = my_stats.lab_avviati
+    except Exception as e: # vuol dire che le sue statistiche non sono mai state aggiornate
+        print("EXCEPTED-> "+str(e))
+        argomenti = 0
+        flags = 0
+        punteggio = 0
+        labs = 0
+
+    context = {
+        'classifica': return_classifica,
+        'tot_persone': tot_pers,
+        'argomenti': argomenti,
+        'flags': flags,
+        'punteggio': punteggio,
+        'labs': labs, 
+    }
+
+    html_template = loader.get_template( 'index.html' )
+    return HttpResponse(html_template.render(context, request))
+    #return render(request, "index.html")
 
 @login_required(login_url="/login/")
 def pages(request):
@@ -79,6 +111,14 @@ def argomenti(request):
     pk_arg = pk[0]
 
     arg = Tag_Args.objects.get(pk=pk_arg)
+
+    try:
+        my_stats = Statistiche.objects.get(user_id=User.objects.get(pk=request.session["user_pk"]))
+        my_stats.guide_lette = int(my_stats.guide_lette) + 1
+        my_stats.save()
+    except ObjectDoesNotExist:
+        my_stats = Statistiche(lab_avviati=0,flag_trovate=0,guide_lette=1,punteggio=0,user_id=User.objects.get(pk=request.session["user_pk"]))
+        my_stats.save()
 
     context = {
         'argomento': arg,

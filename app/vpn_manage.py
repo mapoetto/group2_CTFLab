@@ -30,24 +30,22 @@ def get_porta(user_id):
 
         random_port = random.randint(MIN_RANGE, MAX_RANGE)
 
-        cmd_check_port = "sudo netstat -nlp | grep :"+str(random_port)
-        try:
-            result = subprocess.check_output(cmd_check_port, shell=True)
+        #"lsof -n -i4TCP:"+str(random_port)+" | grep LISTEN && echo \"porta occupata\""
+        #stampa porta occupata più l'output del grep 
 
-            while (len(result)!=0):
+        esiste_gia=User.objects.filter(porta_vpn=random_port).exists()
+
+        if esiste_gia==True:
+            while(esiste_gia):
                 random_port = random.randint(MIN_RANGE, MAX_RANGE)
-                cmd_check_port = "sudo netstat -nlp | grep :"+str(random_port)
-                try:
-                    result = subprocess.check_output(cmd_check_port, shell=True)
-                except:
-                    break #se netstat fa exit 1 vuol dire che la porta non è occupata
-        except:
-            pass #se netstat fa exit 1 vuol dire che la porta non è occupata
-
-
-
-        me.porta_vpn = str(random_port)
-        me.save()
+                esiste_gia=User.objects.filter(porta_vpn=random_port).exists()
+                if esiste_gia==False:
+                    me.porta_vpn = str(random_port)
+                    me.save()
+                    break
+        else: 
+            me.porta_vpn = str(random_port)
+            me.save()
 
         return random_port
     else:
@@ -227,6 +225,7 @@ def create_server_vpn(user_id):
 def check_server_vpn(user_id):
 
     client = get_docker_client(LOCAL_TUNNEL)
+    client_low = get_docker_client(LOCAL_TUNNEL,True)
 
     #print("deleted containers->"+json.dumps(client.containers.prune()))
     #print("\n\ndeleted images->"+json.dumps(client.images.prune(filters={"dangling":False})))
@@ -236,10 +235,13 @@ def check_server_vpn(user_id):
     client = get_docker_client(LOCAL_TUNNEL)
     name_VPN = "serverVPN_user_" + str(user_id)
     try:
-        print("CHECK - sto quiii")
+        #print("CHECK - sto quiii")
         cont_vpn = client.containers.get(name_VPN)
+        print("CHECK per vedere lo stato attuale del container vpn:"+cont_vpn.status)
         if cont_vpn.status == "running":
             pass
+        elif cont_vpn.status == "exited":
+            client_low.start(name_VPN)
         else:
             return False
     except docker.errors.APIError as e:

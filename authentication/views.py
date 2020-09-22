@@ -53,9 +53,9 @@ def login_view(request):
                     #print("Tutto ok sir")
                     return redirect("/admin/")
             else:    
-                msg = 'Invalid credentials'    
+                msg = 'Credenziali Errate'    
         else:
-            msg = 'Error validating the form'    
+            msg = 'Impossibile validare il form'    
 
     class Meta:
         model = User
@@ -78,13 +78,13 @@ def register_user(request):
             raw_password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
 
-            msg     = 'User created.'
+            msg     = 'Utente registrato correttamente'
             success = True
             
             #return redirect("/login/")
 
         else:
-            msg = 'Form is not valid'
+            msg = 'Form non valido'
     else:
         form = SignUpForm()
 

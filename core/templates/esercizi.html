@@ -10,9 +10,10 @@
 {% block content %}
 {% load keyvalue %}
         <div class="row">
-          <div class="col-md-6">
-            <div class="alert alert-info" style="overflow: auto; clear:both;">
-              <div style="float: left; width: 85%;">
+          
+          <div class="col-md-4" style="padding-bottom: 20px;">
+            <div class="alert alert-info" style="overflow: auto; clear:both; height: 100%;">
+              <div style="float: left; width: 65%;">
                 <div><h3 style="margin: 0 0;">VPN</h3></div>
                 {% if VPN == "off" %}
                   <span>La <b>VPN</b> è al momento <b>OFF</b> <br /><i style="color: white;">(Generalmente la VPN impiega meno di 5 minuti per avviarsi)</i></span>
@@ -21,7 +22,7 @@
                   <span>La <b>VPN</b> è <b>ON</b></span>
                 {% endif %}
               </div>
-              <div style="float: right; width: 15%;">
+              <div style="float: right; width: 35%;">
                 <img src="static/fileOPENVPN.png" style="max-width: 60px; width: 100%;"><br />
                 {% if VPN == "on" %}
                   <a href="client.ovpn" download>Download Certificato</a>
@@ -29,10 +30,7 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-8">
             <div class="alert " style="color:black; background-color: transparent; border: 3px solid black; overflow: auto; clear:both;">
               <div style="float: left; width: 85%;">
                 <div><h3 style="margin: 0 0;">Filtra</h3></div><br />
@@ -125,8 +123,10 @@
                                       document.getElementById("timer_"+lab).style.display = 'block';
                                       get_timer(cb.start_time, 'timer_{{ laboratorio.pk }}', 30);
                                       new_num = parseInt($("#num_notifications").text()) + 1;
-                                      $("#num_notifications").html(""+new_num+"");
-                                      $("#num_notifications").css("display","inline");
+                                      if (typeof cb.show_not == "undefined"){ //se è diverso da undefined vuol dire che non deve mostrare la notifica
+                                        $("#num_notifications").html(""+new_num+"");
+                                        $("#num_notifications").css("display","inline");
+                                      }
                                     }else if(cb.response_action == "start_container"){
                                       document.getElementById(lab+"_start").style.display = 'block';
                                       document.getElementById(lab+"_stop").style.display = 'none';

@@ -11,6 +11,7 @@ from itertools import chain
 from django.core import serializers
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import PermissionsMixin
 
 # Create your models here.
 
@@ -33,8 +34,10 @@ def to_dict(instance):
 class Notifica(models.Model):
     testo = models.CharField(max_length=120)
     link = models.CharField(max_length=220)
-    destinatario = models.CharField(max_length=50) #a chi è destinata la notifica (ID dell'utente - oppure TUTTI)
-
+    destinatario = models.CharField(max_length=50, help_text="Inserire l'id dell utente, per mandare singolarmente una notifica a quell'utente, oppure la parola 'tutti' per mandarla a tutti gli utenti") #a chi è destinata la notifica (ID dell'utente - oppure TUTTI)
+    class Meta:
+        verbose_name = 'Notifiche'
+        verbose_name_plural = 'Notifiche'
 #Ogni volta che si crea una notifica, si fa il check per vedere se l'id di quella notifica esiste nella tab notifica_vista
 
 class User(AbstractBaseUser):
@@ -47,6 +50,7 @@ class User(AbstractBaseUser):
     data = models.DateTimeField(auto_now=False, auto_now_add=True)
     porta_vpn = models.CharField(max_length=10,default='')
     id_ctfd = models.CharField(max_length=10,default='')
+    pwd_ctfd = models.CharField(max_length=120,default='')
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
@@ -56,11 +60,35 @@ class User(AbstractBaseUser):
     PROFESSIONE_FIELD = 'professione'
     REQUIRED_FIELDS = ['email','username','nome','cognome','password','professione']
 
-    #is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
 
-    #@property
-    #def is_staff(self):
-    #    return self.is_staff
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return False
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return False
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin
+
+class Statistiche(models.Model):
+    lab_avviati = models.IntegerField(validators=[validate_flag], default=0)
+    flag_trovate = models.IntegerField(validators=[validate_flag], default=0)
+    guide_lette = models.IntegerField(validators=[validate_flag], default=0)
+    punteggio = models.IntegerField(validators=[validate_flag], default=0)
+    user_id = models.ForeignKey(User, related_name="user_id_stat", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = 'Statistiche dell\'utente'
+        verbose_name_plural = 'Statistiche dell\'utente'
 
 class Notifica_vista(models.Model):
     stato = models.CharField(max_length=120) #vista
@@ -69,16 +97,24 @@ class Notifica_vista(models.Model):
 
 
 class Tag_Args(models.Model):
-    colore = models.CharField(max_length=7, unique=True)# #FF5733
+    colore = models.CharField(max_length=7, unique=True, help_text = "Inserire un colore esadecimale, esempio: #DCB50A")# #FF5733
     argomento = models.CharField(max_length=20) # SQL Injection
     spiegazione = models.TextField(default='')
+
+    class Meta:
+        verbose_name = 'Argomenti per laboratori'
+        verbose_name_plural = 'Argomenti per laboratori'
 
     def __str__(self):
         return self.argomento
 
 class Tag_Level(models.Model):
-    colore = models.CharField(max_length=7 , unique=True)# #FF5733
+    colore = models.CharField(max_length=7 , unique=True, help_text = "Inserire un colore esadecimale, esempio: #DCB50A")# #FF5733
     livello = models.CharField(max_length=20) # Difficile
+
+    class Meta:
+        verbose_name = 'Livelli di difficoltà per laboratori'
+        verbose_name_plural = 'Livelli di difficoltà per laboratori'
 
     def __str__(self):
         return self.livello
@@ -89,6 +125,10 @@ class CTFd_configs(models.Model):
     token_API = models.CharField(max_length=64)
     port_API = models.IntegerField(validators=[validate_flag], default=8000)
 
+    class Meta:
+        verbose_name = 'Configurazione per la connessione CTFd'
+        verbose_name_plural = 'Configurazione per la connessione CTFd'
+
     def save(self, *args, **kwargs):
         if not self.pk and CTFd_configs.objects.exists():
         # if you'll not check for self.pk 
@@ -97,16 +137,21 @@ class CTFd_configs(models.Model):
         return super(CTFd_configs, self).save(*args, **kwargs)
 
 class SSHTunnel_configs(models.Model):
-    FULL_PATH_SSH_KEY = models.CharField(max_length=220)
-    USER_SERVER = models.CharField(max_length=64)
-    DNS_NAME_SERVER = models.CharField(max_length=220)
-    LOCAL_PORT = models.IntegerField(validators=[validate_flag])
-    REMOTE_PORT = models.IntegerField(validators=[validate_flag])
+    FULL_PATH_SSH_KEY = models.CharField(max_length=220,default='')
+    USER_SERVER = models.CharField(max_length=64,default='')
+    DNS_NAME_SERVER = models.CharField(max_length=220,default='')
+    LOCAL_PORT = models.IntegerField(validators=[validate_flag],default='')
+    REMOTE_PORT = models.IntegerField(validators=[validate_flag],default='')
     
+    class Meta:
+        verbose_name = 'Configurazione per la connessione alla macchina Docker'
+        verbose_name_plural = 'Configurazione per la connessione alla macchina Docker'
+
     def save(self, *args, **kwargs):
         if not self.pk and SSHTunnel_configs.objects.exists():
             raise ValidationError('E\' possibile avere una sola istanza di SSHTunnel_config')
         return super(SSHTunnel_configs, self).save(*args, **kwargs)
+
 
 class Lab(models.Model):
     nome = models.CharField(max_length=120)
@@ -171,7 +216,6 @@ class Lab(models.Model):
         from app.middleware import add_challenge, patch_flag, check_challenges ,patch_challenge
         
         try:
-            Lab.objects.get(pk=self.pk)
 
             lab = Lab.objects.get(pk=self.pk)
 
@@ -228,6 +272,10 @@ class Lab(models.Model):
 
     def __str__(self):
         return self.nome + " - " + self.docker_name
+
+    class Meta:
+        verbose_name = 'Laboratori'
+        verbose_name_plural = 'Laboratori'
 
 class CyberKillChain(models.Model):
     intro = models.TextField(default='')

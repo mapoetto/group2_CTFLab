@@ -63,6 +63,16 @@ def manage(request):
             response_list = {
                 "error": "Inserire una password maggiore o uguale di 3 caratteri"
             }
+    elif  POST_VALUES["action"] == "checkpwd_forctfd":
+        me = User.objects.get(pk=request.session["user_pk"])
+        if(check_password(POST_VALUES["pwd"], me.password)):
+            response_list = {
+                "ctfd_pwd": me.pwd_ctfd,
+            }
+        else:
+            response_list = {
+                "error": "Password errata"
+            }
     else:
         #should not be here
         response_list = {

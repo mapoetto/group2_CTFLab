@@ -10,13 +10,39 @@
     <div class="row">
       <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card card-stats">
+          <div class="card-header card-header-rose card-header-icon">
+            <div class="card-icon">
+              <i class="material-icons">import_contacts</i>
+            </div>
+            <p class="card-category"><b style="color:black;">Argomenti Studiati</b></p>
+            <h3 class="card-title">
+              {{argomenti}}
+            </h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
           <div class="card-header card-header-warning card-header-icon">
+            <div class="card-icon">
+              <i class="material-icons">flag</i>
+            </div>
+            <p class="card-category"><b style="color:black;">Flag Trovate</b></p>
+            <h3 class="card-title">
+              {{flags}}
+            </h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
+          <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon">
               <i class="material-icons">grade</i>
             </div>
-            <p class="card-category">Esercizi Svolti</p>
+            <p class="card-category"><b style="color:black;">Punteggio</b></p>
             <h3 class="card-title">
-              0
+              {{punteggio}}
             </h3>
           </div>
         </div>
@@ -27,8 +53,8 @@
             <div class="card-icon">
               <i class="material-icons">developer_board</i>
             </div>
-            <p class="card-category">Laboratori Avviati</p>
-            <h3 class="card-title">0</h3>
+            <p class="card-category"><b style="color:black;">Laboratori Avviati</b></p>
+            <h3 class="card-title">{{labs}}</h3>
           </div>
         </div>
       </div>
@@ -40,8 +66,8 @@
       <div class="col-lg-6 col-md-12">
         <div class="card">
           <div class="card-header card-header-warning">
-            <h4 class="card-title">Il Tuo Team</h4>
-            <p class="card-category">2 Persone</p>
+            <h4 class="card-title">Classifica</h4>
+            <p class="card-category">{{ tot_persone }} Persone</p>
           </div>
           <div class="card-body table-responsive">
             <table class="table table-hover">
@@ -50,14 +76,16 @@
                 <th>Punti</th>
               </thead>
               <tbody>
+                {% for key, value in classifica.items %}
+                  {% with punteggio=value|stringformat:"s" %}
+                  {% with username=key|stringformat:"s" %}
                 <tr>
-                  <td>Username 1 </td>
-                  <td>0</td>
+                  <td>{{ username }}</td>
+                  <td>{{ punteggio }}</td>
                 </tr>
-                <tr>
-                  <td>Username 2</td>
-                  <td>0</td>
-                </tr>
+                  {% endwith %}
+                  {% endwith %}
+                {% endfor %}
               </tbody>
             </table>
           </div>

@@ -6,7 +6,8 @@ from app.setup_docker_client import get_docker_client
 from app.config_const import *
 from app.vpn_manage import check_server_vpn, create_server_vpn
 from app.notification_manage import insert_notification
-from .models import Lab
+from .models import Lab, Statistiche, User
+from django.core.exceptions import ObjectDoesNotExist
 
 from ipaddress import IPv4Interface
 
@@ -157,7 +158,8 @@ def manage(request):
                     response_list = {
                         "response_action": "stop_container",
                         "msg_response" : msg_response,
-                        "start_time": x.strftime("%m/%d/%Y, %H:%M:%S")
+                        "start_time": x.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "show_not": "dontshow"
                     }
                      
                 else:
@@ -178,6 +180,14 @@ def manage(request):
                     }
 
                     insert_notification("Laboratorio "+labo.nome+" Avviato!", "#", request.session["user_pk"])
+                    
+                    try:
+                        my_stats = Statistiche.objects.get(user_id=User.objects.get(pk=request.session["user_pk"]))
+                        my_stats.lab_avviati = int(my_stats.lab_avviati) + 1
+                        my_stats.save()
+                    except ObjectDoesNotExist:
+                        my_stats = Statistiche(lab_avviati=1,flag_trovate=0,guide_lette=0,punteggio=0,user_id=User.objects.get(pk=request.session["user_pk"]))
+                        my_stats.save()
 
                     # Setta la sessione che serve al frontend
                     request.session[name_lab] = "running"
