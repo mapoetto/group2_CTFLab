@@ -16,7 +16,8 @@
             </div>
             <p class="card-category"><b style="color:black;">Argomenti Studiati</b></p>
             <h3 class="card-title">
-              {{argomenti}}
+              <span id="stats_argomenti"></span>
+              <span class="load_stats"></span>
             </h3>
           </div>
         </div>
@@ -29,7 +30,8 @@
             </div>
             <p class="card-category"><b style="color:black;">Flag Trovate</b></p>
             <h3 class="card-title">
-              {{flags}}
+              <span id="stats_flags"></span>
+              <span class="load_stats"></span>
             </h3>
           </div>
         </div>
@@ -42,7 +44,8 @@
             </div>
             <p class="card-category"><b style="color:black;">Punteggio</b></p>
             <h3 class="card-title">
-              {{punteggio}}
+              <span id="stats_punteggio"></span>
+              <span class="load_stats"></span>
             </h3>
           </div>
         </div>
@@ -54,7 +57,10 @@
               <i class="material-icons">developer_board</i>
             </div>
             <p class="card-category"><b style="color:black;">Laboratori Avviati</b></p>
-            <h3 class="card-title">{{labs}}</h3>
+            <h3 class="card-title">
+              <span id="stats_labs"></span>
+              <span class="load_stats"></span>
+            </h3>
           </div>
         </div>
       </div>
@@ -67,25 +73,19 @@
         <div class="card">
           <div class="card-header card-header-warning">
             <h4 class="card-title">Classifica</h4>
-            <p class="card-category">{{ tot_persone }} Persone</p>
+            <p class="card-category" id="stats_tot_persone"></p>
           </div>
           <div class="card-body table-responsive">
             <table class="table table-hover">
               <thead class="text-warning">
+                <th style="width:30%;">Posizione</th>
                 <th>Nome</th>
                 <th>Punti</th>
               </thead>
-              <tbody>
-                {% for key, value in classifica.items %}
-                  {% with punteggio=value|stringformat:"s" %}
-                  {% with username=key|stringformat:"s" %}
-                <tr>
-                  <td>{{ username }}</td>
-                  <td>{{ punteggio }}</td>
+              <tbody id="stats_classifica">
+                <tr class="load_stats">
+                
                 </tr>
-                  {% endwith %}
-                  {% endwith %}
-                {% endfor %}
               </tbody>
             </table>
           </div>
@@ -121,7 +121,54 @@
   <script>
     $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
+      
       md.initDashboardPageCharts();
+
+      var POST_REQUEST = {
+        action: encodeURIComponent("retrive_stats")
+      };
+      
+      myObj = sendPost(csrftoken, "/core/", POST_REQUEST, function(cb, stat){
+        if(cb == "error"){
+            if(stat == "0"){
+                $(".load_stats").html("<img src=\"static/assets/img/loading.gif\" style=\"width: 100%; max-width: 50px;\">");
+            }
+        }else if (typeof cb.error != "undefined"){ //errore custom
+            $(".load_stats").html("Errore: " + cb.error);
+        }else{
+          
+          if(typeof cb.risultato != "undefined"){
+            
+            if(cb.risultato == "tutto_ok"){
+
+
+              $(".load_stats").fadeOut(function (){
+
+                $("#stats_tot_persone").html("Su un totale di "+cb.tot_persone+" persone (Solo utenti iscritti sulla DashBoard)");
+                $("#stats_argomenti").html(cb.argomenti);
+                $("#stats_flags").html(cb.flags);
+                $("#stats_punteggio").html(cb.punteggio);
+                $("#stats_labs").html(cb.labs);
+
+                var string_all_table = "";
+                posizioni = 1;
+                for (var key in cb.classifica){
+                  string_all_table +="<tr><td style=\"width:30%;\">"+posizioni+"°</td><td>"+key+"</td><td>"+cb.classifica[key]+"</td></tr>";
+                  posizioni++;
+                }
+
+                $("#stats_classifica").html(string_all_table);
+
+              });
+
+
+            }
+
+          }else{
+            $(".load_stats").html(stat);
+          }
+        }
+      });
 
     });
   </script>

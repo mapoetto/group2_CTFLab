@@ -328,7 +328,10 @@ def get_userSolves(user_id):
             correct+=1    
     return correct
 
-def aggiorna_stats(id_utente_dash):
+def get_stats(id_utente_dash):
+
+    from collections import OrderedDict
+
     #prendere l'id utente di ctfd
     #aggiornare le flag tramite get_solves
     #aggiornare lo score tramite get_UserScore
@@ -343,6 +346,35 @@ def aggiorna_stats(id_utente_dash):
         my_stats.punteggio = get_UserScore(me.id_ctfd)
 
         my_stats.save()
-    
 
-    pass
+        argomenti = my_stats.guide_lette
+        flags = my_stats.flag_trovate
+        punteggio = my_stats.punteggio
+        labs = my_stats.lab_avviati
+
+    else:
+        argomenti = 0
+        flags = 0
+        punteggio = 0
+        labs = 0
+
+    return_classifica = {}
+    tot_pers = 0
+
+    classifica = Statistiche.objects.all().order_by('punteggio')
+    for utente in classifica:
+        temp_user = User.objects.get(pk=utente.user_id.pk)
+        return_classifica[temp_user.username] = utente.punteggio
+        tot_pers += 1
+
+    context = {
+        'classifica': OrderedDict(sorted(return_classifica.items(), reverse=True, key=lambda x: x[1])),
+        'tot_persone': tot_pers,
+        'argomenti': argomenti,
+        'flags': flags,
+        'punteggio': punteggio,
+        'labs': labs, 
+        'risultato': "tutto_ok",
+    }
+
+    return json.dumps(context)

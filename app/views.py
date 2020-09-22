@@ -30,41 +30,7 @@ from django.core.exceptions import ObjectDoesNotExist
 @login_required(login_url="/login/")
 def index(request):
 
-    from .middleware import aggiorna_stats
-
-    me = User.objects.get(pk=request.session["user_pk"])
-
-    return_classifica = {}
-    tot_pers = 0
-
-    classifica = Statistiche.objects.all().order_by('punteggio')
-    for utente in classifica:
-        temp_user = User.objects.get(pk=utente.user_id.pk)
-        return_classifica[temp_user.username] = utente.punteggio
-        tot_pers += 1
-
-    try:
-        aggiorna_stats(me.pk)
-        my_stats = Statistiche.objects.get(user_id=me)
-        argomenti = my_stats.guide_lette
-        flags = my_stats.flag_trovate
-        punteggio = my_stats.punteggio
-        labs = my_stats.lab_avviati
-    except Exception as e: # vuol dire che le sue statistiche non sono mai state aggiornate
-        print("EXCEPTED-> "+str(e))
-        argomenti = 0
-        flags = 0
-        punteggio = 0
-        labs = 0
-
-    context = {
-        'classifica': return_classifica,
-        'tot_persone': tot_pers,
-        'argomenti': argomenti,
-        'flags': flags,
-        'punteggio': punteggio,
-        'labs': labs, 
-    }
+    context = {}
 
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
@@ -207,12 +173,17 @@ def cyberkillchain(request):
 
 @login_required(login_url="/login")
 def core(request):
+
+    from .middleware import get_stats
+
     if request.is_ajax():
         POST_VALUES = json.loads(request.POST.get('data'))
         if POST_VALUES["action"] == "start_lab" or POST_VALUES["action"] == "stop_lab":
             message = lab_manager.manage(request)
         elif POST_VALUES["action"] == "get_notifications":
             message = notification_manager.manage(request)
+        elif POST_VALUES["action"] == "retrive_stats":
+            message = get_stats(str(request.session["user_pk"]))
         else:
             message = "Unknown actions"
     else:
