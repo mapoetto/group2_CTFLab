@@ -4,7 +4,7 @@ import requests
 import json
 
 from app.config_const import *
-from .models import User
+from .models import User, Statistiche
 
 def get_random_password(): 
     alphabet = string.ascii_letters + string.digits
@@ -240,7 +240,7 @@ def get_UserScore(user_id):
     score_user = 0
     if result['success'] == True:
         for user in result['data']:
-            if user['account_id'] == user_id:
+            if str(user['account_id']) == str(user_id):
                 score_user += int(user['score'])
     return score_user
 
@@ -266,8 +266,9 @@ def insert_user(user_id):
         "verified": True,
     } 
     
+    #print("Inizio richiesta")
     response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
-    #print(response.text.encode('utf8'))
+    #print("RESPONSO DELLA RICHIESTA PER INSERIMENTO UTENTE"+response.text.encode('utf8'))
 
     #Primo if per controllare se la richiesta è stata eseguita 
     result = json.loads(response.text)
@@ -286,7 +287,6 @@ def insert_user(user_id):
         print("ERRORE NELL'INSERIMENTO")
         return False
 
-#get_solves(str(user_id))
 
 
 def get_solves(userCTFd_id):
@@ -306,11 +306,43 @@ def get_solves(userCTFd_id):
     else:
         return False
 
-def aggiorna_stats(user_id):
+#Funzione GET per il numero di flag risolte da un'utente
+def get_userSolves(user_id):
+
+    payload = {}
+    headers = {
+    'Authorization': 'Token '+AUTH_TOKEN,
+    'Content-Type': 'application/json'
+    }
+
+    url = ""+URL_CTFD+":8000/api/v1/users/"+str(user_id)+"/solves"
+
+    response = requests.request("GET", url, headers=headers, data = payload)
+    #print(response.text.encode('utf8'))
+    result = json.loads(response.text)
+    
+    correct=0
+    
+    if result['success'] == True:
+        for challenge_id in result['data']:
+            correct+=1    
+    return correct
+
+def aggiorna_stats(id_utente_dash):
     #prendere l'id utente di ctfd
     #aggiornare le flag tramite get_solves
     #aggiornare lo score tramite get_UserScore
 
     #aromenti studiati e laboratori avviati vengono aggiornati dalle altre pagine
+
+    me = User.objects.get(pk=id_utente_dash)
+
+    if int(me.id_ctfd) >= 0: #se è associato già l'id di CTFd
+        my_stats = Statistiche.objects.get(user_id=me)
+        my_stats.flag_trovate = get_userSolves(me.id_ctfd)
+        my_stats.punteggio = get_UserScore(me.id_ctfd)
+
+        my_stats.save()
+    
 
     pass

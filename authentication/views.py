@@ -36,7 +36,7 @@ def login_view(request):
                     request.session["user_pk"] = user.pk
                 
                     if check_userCTFd_exists(user.pk) == False:
-                        
+                        print("\nL'utente su ctfd non esiste... starto il thread\n")
                         t2 = threading.Thread(target=insert_user,args=[user.pk],daemon=True)
                         t2.start()
 

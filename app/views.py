@@ -30,6 +30,10 @@ from django.core.exceptions import ObjectDoesNotExist
 @login_required(login_url="/login/")
 def index(request):
 
+    from .middleware import aggiorna_stats
+
+    me = User.objects.get(pk=request.session["user_pk"])
+
     return_classifica = {}
     tot_pers = 0
 
@@ -40,7 +44,8 @@ def index(request):
         tot_pers += 1
 
     try:
-        my_stats = Statistiche.objects.get(user_id=User.objects.get(pk=request.session["user_pk"]))
+        aggiorna_stats(me.pk)
+        my_stats = Statistiche.objects.get(user_id=me)
         argomenti = my_stats.guide_lette
         flags = my_stats.flag_trovate
         punteggio = my_stats.punteggio
