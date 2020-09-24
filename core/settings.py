@@ -34,6 +34,14 @@ INSTALLED_APPS = [
     'app'  # Enable the inner app 
 ]
 
+
+#
+#django-session-security
+#https://stackoverflow.com/questions/3024153/how-to-expire-session-due-to-inactivity-in-django
+#creare un thread allo startup che legge (ogni tot) dal database le sessioni, e capisce qual è expired
+#
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

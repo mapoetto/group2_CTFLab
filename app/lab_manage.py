@@ -172,7 +172,7 @@ def manage(request):
                     # Prende l'ip del container startato
                     lab_ip = get_ip_by_container(name_lab,network_name_user)
 
-                    msg_response = "Laboratorio Avviato !! <br /> IP Lab: " + lab_ip
+                    msg_response = "Laboratorio Avviato !! <br /> IP Lab: " + str(lab_ip)
                     response_list = {
                         "response_action": "stop_container",
                         "msg_response" : msg_response,

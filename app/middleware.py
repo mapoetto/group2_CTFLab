@@ -2,6 +2,8 @@ import secrets
 import string
 import requests
 import json
+import time
+import datetime
 
 from app.config_const import *
 from .models import User, Statistiche
@@ -60,6 +62,50 @@ def get_idFlag(challenge_id):
            return flag_id
     else: 
         return False
+
+def get_fail(user_id):
+
+    headers = {
+        'Authorization': 'Token '+AUTH_TOKEN,
+        'Content-Type': 'application/json'
+    }  
+
+    payload = {}
+
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/users/"+str(user_id)+"/fails"
+ 
+    response = requests.request("GET", url, headers=headers, data = payload) 
+    #print(response.text.encode('utf8')) 
+    #print("questo sopra \n\n\n\n\n")
+    result = json.loads(response.text)
+
+    give_me = {}
+    give_me["data"]= []
+    give_me["count"] = result["meta"]["count"]
+    #print("questo è il count"+str(result["meta"]["count"]))
+    for entry in result["data"]:
+        #print("splitted->"+entry["date"].split("T")[0])
+        entry["date"] = entry["date"].split("T")[0]
+        temp = entry["date"].split("-")
+        entry["date"] = str(temp[2]) +"/"+ str(temp[1]) 
+
+        #entry["date"] = time.mktime(datetime.datetime.strptime(entry["date"], "%Y-%m-%d").timetuple())
+
+        give_me["data"].append(entry)
+    #print("questo è il dict->"+str(json.dumps(give_me)))
+    return give_me
+
+def get_submissions(user_id):
+
+    risolte = get_solves(user_id)
+    fails = get_fail(user_id)
+
+    count_fails = fails["meta"]["count"]
+    print(str((risolte)))
+    risolte_count = len((risolte)) 
+
+    print("Totale submission: "+str(int(count_fails) + int(risolte_count))+" di cui "+str(count_fails)+" fallite e "+str(risolte_count))
+
 
 def patch_challenge(challenge_id, patch_nameCh, patch_value, patch_categoryCh):
     
@@ -297,12 +343,27 @@ def get_solves(userCTFd_id):
     'Content-Type': 'application/json'
     }
 
-    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/users"+str(userCTFd_id)+"/solves"
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/users/"+str(userCTFd_id)+"/solves"
 
     response = requests.request("GET", url, headers=headers, data = payload)
+    #print(response.text)
     result = json.loads(response.text)
+
     if result['success'] == True:
-        return result['data']
+        give_me = {}
+        give_me["data"]= []
+        #print("questo è il count"+str(result["meta"]["count"]))
+        for entry in result["data"]:
+            #print("splitted->"+entry["date"].split("T")[0])
+            entry["date"] = entry["date"].split("T")[0]
+            temp = entry["date"].split("-")
+            entry["date"] = str(temp[2]) +"/"+ str(temp[1]) 
+
+            #entry["date"] = time.mktime(datetime.datetime.strptime(entry["date"], "%Y-%m-%d").timetuple())
+
+            give_me["data"].append(entry)
+        #print("questo è il dict->"+str(json.dumps(give_me)))
+        return give_me
     else:
         return False
 
@@ -340,6 +401,7 @@ def get_stats(id_utente_dash):
 
     me = User.objects.get(pk=id_utente_dash)
 
+
     if int(me.id_ctfd) >= 0: #se è associato già l'id di CTFd
         my_stats = Statistiche.objects.get(user_id=me)
         my_stats.flag_trovate = get_userSolves(me.id_ctfd)
@@ -352,11 +414,32 @@ def get_stats(id_utente_dash):
         punteggio = my_stats.punteggio
         labs = my_stats.lab_avviati
 
+        risolte = get_solves(me.id_ctfd)
+        fails = get_fail(me.id_ctfd)
+
+        count_fails = fails["count"]
+        print(str((risolte)))
+        risolte_count = len((risolte["data"])) 
+        
+        dict_solves = risolte
+        if(int(fails["count"]) > 0):
+            dict_fails = fails["data"]
+            print("ho popolato il data")
+        else:
+            dict_fails = {}
+
+        print("Totale submission: "+str(int(count_fails) + int(risolte_count))+" di cui "+str(count_fails)+" fallite e "+str(risolte_count))
+
+
     else:
         argomenti = 0
         flags = 0
         punteggio = 0
         labs = 0
+        count_fails = 0
+        risolte_count = 0
+        dict_solves = {}
+        dict_fails = {}
 
     return_classifica = {}
     tot_pers = 0
@@ -375,6 +458,10 @@ def get_stats(id_utente_dash):
         'punteggio': punteggio,
         'labs': labs, 
         'risultato': "tutto_ok",
+        'submission_risolte': risolte_count,
+        'submission_fail': count_fails,
+        'dict_fails': dict_fails,
+        'dict_solves': dict_solves
     }
 
     return json.dumps(context)

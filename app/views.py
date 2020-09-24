@@ -34,6 +34,8 @@ def index(request):
 
     context = {"nome": str(me.nome).title()}
 
+    
+
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
     #return render(request, "index.html")

@@ -70,7 +70,7 @@
 
     <div class="row">
 
-      <div class="col-lg-6 col-md-12">
+      <div class="col-lg-8 col-md-12">
         <div class="card">
           <div class="card-header card-header-warning">
             <h4 class="card-title">Classifica</h4>
@@ -92,22 +92,27 @@
           </div>
         </div>
       </div>
-
-      <div class="col-md-4">
+    </div>
+    <div class="row">
+      <div class="col-md-6">
         <div class="card card-chart">
           <div class="card-header card-header-success">
-            <div class="ct-chart" id="dailySalesChart"></div>
+            <div class="load_stats"></div><div class="ct-chart" id="dailySalesChart"></div>
           </div>
           <div class="card-body">
-            <h4 class="card-title">Daily Sales</h4>
-            <p class="card-category">
-              <span class="text-success"><i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales.</p>
+            <h4 class="card-title">Tentativi di soluzioni</h4>
+            <p class="card-category" id="testo_submission">
+              
+              <span class="text-success">
+                <i class="fa fa-long-arrow-up"></i> 55% 
+              </span> increase in today sales.
+            </p>
           </div>
-          <div class="card-footer">
+          <!--<div class="card-footer">
             <div class="stats">
               <i class="material-icons">access_time</i> updated 4 minutes ago
             </div>
-          </div>
+          </div>-->
         </div>
       </div>
 
@@ -133,7 +138,8 @@
         if(cb == "error"){
             if(stat == "0"){
                 $(".load_stats").html("<img src=\"static/assets/img/loading.gif\" style=\"width: 100%; max-width: 50px;\">");
-            }
+                $("#dailySalesChart").hide();
+              }
         }else if (typeof cb.error != "undefined"){ //errore custom
             $(".load_stats").html("Errore: " + cb.error);
         }else{
@@ -142,24 +148,102 @@
             
             if(cb.risultato == "tutto_ok"){
 
-
+              var size = $('.load_stats').length - 1;
+              var count = 0;
               $(".load_stats").fadeOut(function (){
+                if (++count == size) {
 
-                $("#stats_tot_persone").html("Su un totale di "+cb.tot_persone+" persone (Solo utenti iscritti sulla DashBoard)");
-                $("#stats_argomenti").html(cb.argomenti);
-                $("#stats_flags").html(cb.flags);
-                $("#stats_punteggio").html(cb.punteggio);
-                $("#stats_labs").html(cb.labs);
+                  $("#dailySalesChart").show();
 
-                var string_all_table = "";
-                posizioni = 1;
-                for (var key in cb.classifica){
-                  string_all_table +="<tr><td style=\"width:30%;\">"+posizioni+"°</td><td>"+key+"</td><td>"+cb.classifica[key]+"</td></tr>";
-                  posizioni++;
+                  $("#stats_tot_persone").html("Su un totale di "+cb.tot_persone+" persone (Solo utenti iscritti sulla DashBoard)");
+                  $("#stats_argomenti").html(cb.argomenti);
+                  $("#stats_flags").html(cb.flags);
+                  $("#stats_punteggio").html(cb.punteggio);
+                  $("#stats_labs").html(cb.labs);
+
+                  var string_all_table = "";
+                  posizioni = 1;
+                  for (var key in cb.classifica){
+                    string_all_table +="<tr><td style=\"width:30%;\">"+posizioni+"°</td><td>"+key+"</td><td>"+cb.classifica[key]+"</td></tr>";
+                    posizioni++;
+                  }
+
+                  $("#stats_classifica").html(string_all_table);
+
+
+                  var tot_sub = parseInt(cb.submission_risolte) + parseInt(cb.submission_fail);
+
+                  var tot_arr = [];
+
+                  for (var key in cb.dict_fails){
+                    //var new_date = new Date(cb.dict_fails[key]["date"]);
+                    //console.log(new_date.getDay()+"/"+new_date.getMonth()+"");
+                    //console.log("ciao");
+                    //cb.dict_fails[key]["date"] = parseInt(cb.dict_fails[key]["date"]) * 1000;
+                    console.log("data fail->"+cb.dict_fails[key]["date"]);
+                    if(cb.dict_fails[key]["date"] in tot_arr){
+                      tot_arr[cb.dict_fails[key]["date"]]++;
+                    }else{
+                      tot_arr[cb.dict_fails[key]["date"]] = 0;
+                      tot_arr[cb.dict_fails[key]["date"]]++;
+                    }
+
+                  }
+
+                  for (var key in cb.dict_solves["data"]){
+
+                    console.log("data"+cb.dict_solves["data"][key]["date"]);
+
+                    if(cb.dict_solves["data"][key]["date"] in tot_arr){
+                      tot_arr[cb.dict_solves["data"][key]["date"]]++;
+                    }else{
+                      tot_arr[cb.dict_solves["data"][key]["date"]] =  0;
+                      tot_arr[cb.dict_solves["data"][key]["date"]]++;
+                    }
+
+                  }
+                  /*
+                  dataDailySalesChart = {
+                    labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                    series: [
+                      [120, 17, 7, 17, 23, 18, 38]
+                    ]
+                  };*/
+                  
+                  tot_arr.sort(function(a, b) {
+                      return Object.keys(a) > Object.keys(b);
+                  });
+
+                  dataDailySalesChart = {
+                    labels: Object.keys(tot_arr),
+                    series: [
+                      Object.values(tot_arr)
+                    ]
+                  };
+
+                  optionsDailySalesChart = {
+                    lineSmooth: Chartist.Interpolation.cardinal({
+                      tension: 0
+                    }),
+                    low: 0,
+                    high: 5, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+                    chartPadding: {
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      left: 0
+                    },
+                  }
+
+                  var dailySalesChart = new Chartist.Line('#dailySalesChart', dataDailySalesChart, optionsDailySalesChart);
+
+                  md.startAnimationForLineChart(dailySalesChart);
+
+                  console.log(tot_arr);
+
+                  $("#testo_submission").html("Il grafico mostra i tentativi totali di soluzione dei laboratori<br />Totale: "+tot_sub+" di cui: <br />Corrette:"+cb.submission_risolte+"<br />Fallite:"+cb.submission_fail);
+
                 }
-
-                $("#stats_classifica").html(string_all_table);
-
               });
 
 

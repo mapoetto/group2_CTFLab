@@ -261,14 +261,12 @@ class Lab(models.Model):
                 else:
                     raise ValidationError('Inserire la configurazione per contattare l\'API di CTFd')
         except ObjectDoesNotExist:
-            raise ValidationError('Questo è un nuovo laboratorio')
+            #super(Lab, self).save(*args, **kwargs)
+            #raise ValidationError('Questo è un nuovo laboratorio')
+            pass
+            
 
-
-        
-        # if you'll not check for self.pk 
-        # then error will also raised in update of exists model
-            raise ValidationError('E\' possibile avere una sola istanza di CyberKillChain')
-        return super(CyberKillChain, self).save(*args, **kwargs)
+        return super(Lab, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.nome + " - " + self.docker_name
