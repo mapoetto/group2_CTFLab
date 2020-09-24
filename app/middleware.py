@@ -518,6 +518,7 @@ def get_userSolves(user_id):
 def get_stats(id_utente_dash):
 
     from collections import OrderedDict
+    from django.core.exceptions import ObjectDoesNotExist
 
     #prendere l'id utente di ctfd
     #aggiornare le flag tramite get_solves
@@ -529,11 +530,14 @@ def get_stats(id_utente_dash):
 
 
     if int(me.id_ctfd) >= 0: #se è associato già l'id di CTFd
-        my_stats = Statistiche.objects.get(user_id=me)
-        my_stats.flag_trovate = get_userSolves(me.id_ctfd)
-        my_stats.punteggio = get_UserScore(me.id_ctfd)
-
-        my_stats.save()
+        try:
+            my_stats = Statistiche.objects.get(user_id=me)
+            my_stats.flag_trovate = get_userSolves(me.id_ctfd)
+            my_stats.punteggio = get_UserScore(me.id_ctfd)
+            my_stats.save()
+        except ObjectDoesNotExist: #non ci sono statistiche associate, quindi creiamo una nuova row
+            my_stats = Statistiche(lab_avviati=0,flag_trovate=0,guide_lette=0,punteggio=0,user_id=me)
+            my_stats.save()
 
         argomenti = my_stats.guide_lette
         flags = my_stats.flag_trovate
