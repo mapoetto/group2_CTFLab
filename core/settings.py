@@ -20,7 +20,7 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 DEBUG = config('DEBUG', default=True)
 
 # load production server from .env
-ALLOWED_HOSTS = ['192.168.1.2','localhost', '127.0.0.1', config('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = ['dashboard.projectwork2.cyberhackademy.it', '192.168.1.2', 'localhost', '127.0.0.1', config('SERVER', default='127.0.0.1')]
 
 # Application definition
 

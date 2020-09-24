@@ -108,8 +108,8 @@ def create_server_vpn(user_id):
     #quinto comando
     #docker run -v $OVPN_DATA_ID:/etc/openvpn --log-driver=none --rm kylemanna/openvpn ovpn_getclient $ID_UTENTE_ID > $ID_UTENTE_ID.ovpn
 
-    #immagine del serverVPN
-    immagine_server = "kylemanna/openvpn"
+    #immagine del serverVPN VECCHIA = "kylemanna/openvpn"
+    immagine_server = "giuseppsss/openvpn"
     
     volumes= ['/host_location']
 
