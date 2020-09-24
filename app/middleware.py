@@ -158,7 +158,7 @@ def patch_flag(flag_patched, name_challenge, category_challenge):
  
     response = requests.request("PATCH", url, headers=headers, data = json.dumps(payload))
     result = json.loads(response.text)
-    print(response.text.encode('utf8'))
+    #print(response.text.encode('utf8'))
     if result['success'] == True:
         return True
     else:
@@ -247,7 +247,7 @@ def add_challenge(name_challenge, value_challenge, category_challenge, flag):
             challenge_id = result['data']['id']
             return add_flag(challenge_id, flag) 
     else: 
-        #print("\n\nChallenge già esistente")
+        print("\n\nChallenge già esistente")
         return False
         #print("Challenge già esistente")
 
@@ -289,6 +289,132 @@ def get_UserScore(user_id):
             if str(user['account_id']) == str(user_id):
                 score_user += int(user['score'])
     return score_user
+
+def get_hints():
+
+    payload = {}
+
+    headers = {
+    'Authorization': 'Token '+AUTH_TOKEN,
+    'Content-Type': 'application/json'
+    } 
+
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/hints"
+
+    response = requests.request("GET", url, headers=headers, data = payload)
+    print(response.text.encode('utf8'))
+    #result = json.loads(response.text)
+
+
+
+def patch_hint(hint_patched, cost_patched, name_challenge, category_challenge):
+    
+    challenge_id=check_challenges(name_challenge,category_challenge)
+
+    hint_id = get_idHint(challenge_id)
+    if str(hint_id) == "None":
+        return "hint non trovato"
+    #print(hint_id)
+
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/hints/"+str(hint_id)+""
+    
+    payload = {
+        "challenge_id": challenge_id,
+        "cost": cost_patched,
+        "type": "static",
+        "content": hint_patched,
+    }
+
+    headers = {
+    'Authorization': 'Token '+AUTH_TOKEN,
+    'Content-Type': 'application/json'
+    } 
+
+    #Richiesta PATCH per modificare la flag
+    response = requests.request("PATCH", url, headers=headers, data = json.dumps(payload))
+    #print(response.text.encode('utf8'))
+    #IF per verificare se è stata modificata
+    result = json.loads(response.text)
+    if result['success'] == True:
+        return True
+    else: return False
+
+def check_challengeHint(challenge_id, hint_content, cost_hint):
+
+    payload = {}
+
+    headers = {
+    'Authorization': 'Token '+AUTH_TOKEN,
+    'Content-Type': 'application/json'
+    } 
+
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/challenges/"+str(challenge_id)+"/hints"
+    
+    response = requests.request("GET", url, headers=headers, data = payload)
+    #print(response.text.encode('utf8'))
+    result= json.loads(response.text)
+
+    if result['success'] == True:
+        for hint in result['data']: 
+            if hint['content'] == hint_content and hint['cost'] == cost_hint:
+                #print("La hint già esiste\n")
+                return True
+    #print("Puoi aggiungere la hint")
+    return False
+
+def add_hints(challenge_id, hint_content, cost_hint):
+    
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/hints"
+
+    payload = {
+
+        "type": "standard",
+        "challenge_id": challenge_id,
+        "content": hint_content,
+        "cost": cost_hint,
+    }
+
+    headers = {
+    'Authorization': 'Token '+AUTH_TOKEN,
+    'Content-Type': 'application/json'
+    } 
+
+    #If per verificare se esistente
+    if check_challengeHint(challenge_id,hint_content, cost_hint) == False:
+        response = requests.request("POST", url, headers=headers, data = json.dumps(payload))
+        result = json.loads(response.text)
+        #print(result)
+        if result['success'] == True:
+            return True
+    else: 
+        print("ERRORE: Vuoi aggiungere un nuovo hint, ma già è presente, utilizza patch_flag")
+        return False
+
+#add_hints(11, "ciao", 10)
+
+
+def get_idHint(challenge_id):
+
+    payload = {}
+
+    headers = {
+    'Authorization': 'Token '+AUTH_TOKEN,
+    'Content-Type': 'application/json'
+    } 
+
+    url = ""+URL_CTFD+":"+PORT_CTFD+"/api/v1/challenges/"+str(challenge_id)+"/hints"
+
+    response = requests.request("GET", url, headers=headers, data = payload)
+    #print(response.text.encode('utf8'))
+    result = json.loads(response.text)
+    if result['success'] == True:
+        #Dichiaro un array per salvare più flag
+        #flag_id=[]
+        for hint in result['data']:
+           #flag_id.append(flag['id'])
+           hint_id = hint['id']           
+           return hint_id
+    else: return False
 
 def insert_user(user_id):
 

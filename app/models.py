@@ -213,25 +213,40 @@ class Lab(models.Model):
 
     def save(self, *args, **kwargs):
 
-        from app.middleware import add_challenge, patch_flag, check_challenges ,patch_challenge
+        from app.middleware import add_challenge, patch_flag, check_challenges, patch_challenge, patch_hint, add_hints, check_challengeHint
         
+        if CTFd_configs.objects.exists():
+            pass
+        else:
+            raise ValidationError('Inserire la configurazione per contattare l\'API di CTFd')
+
         try:
 
             lab = Lab.objects.get(pk=self.pk)
 
-            if len(lab.flag) >0: #vuol dire che la flag già c'è
-
+             #
+             #  --- PATCH ED INSERIMENTO FLAG -start 
+             #
+            if lab.valore_flag != self.valore_flag or self.flag != lab.flag:
                 patch = patch_flag(self.flag,self.nome,self.categoria)
+
                 if patch == True:
+                    print("FLAG PATCHATA")
+                    if self.valore_flag != lab.valore_flag:
+                        challenge_id=check_challenges(self.nome,self.categoria)
+                        if patch_challenge(challenge_id, self.nome, self.valore_flag, self.categoria) == True:
+                            print("Ho Patchato anche il valore poichè erano diversi")
+                        else:
+                            print("Errore nel patchare il valore della flag")
                     pass
                 elif patch == "challenge non trovata":
-                    
+                    print("Challenge non trovata")
                     if add_challenge(self.nome, self.valore_flag, self.categoria, self.flag) == True:
                         pass
                     else:
                         raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (1)')
                 elif patch == "flag non trovata":
-                    
+                    print("flag non trovata")
                     challenge_id=check_challenges(self.nome,self.categoria)
                     if add_flag(challenge_id, self.flag) == True:
                         pass
@@ -239,31 +254,71 @@ class Lab(models.Model):
                         raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (2)')
                 else:
                     raise ValidationError('Il patch della flag non è andato a buon fine (Errore non gestito)')
-                
-                if lab.valore_flag != self.valore_flag:
+            else:
+                print("NON aggiorno la flag perchè sono uguali")
+            #if lab.valore_flag != self.valore_flag:
+            #    challenge_id=check_challenges(self.nome,self.categoria)
+            #    if patch_challenge(challenge_id, self.nome, self.valore_flag, self.categoria) == True:
+            #        pass
+            #    else:
+            #        raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (3)')
+
+            #
+            #--- PATCH ED INSERIMENTO FLAG - end
+            #
+
+
+            #
+            #--- PATCH ED INSERIMENTO HINT - start
+            #
+
+            if lab.hint is not None and self.hint is not None and len(lab.hint) >0:
+                patch = patch_hint(self.hint, self.hint_cost, self.nome, self.categoria)
+                if patch == True:
+                    pass
+                elif patch == "hint non trovato":
                     challenge_id=check_challenges(self.nome,self.categoria)
-                    if patch_challenge(challenge_id, self.nome, self.valore_flag, self.categoria) == True:
+                    if add_hints(challenge_id, self.hint, self.hint_cost) == True:
                         pass
                     else:
-                        raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (3)')
-
-
-                return super(Lab, self).save(*args, **kwargs)
-
-            else:
-                if CTFd_configs.objects.exists():
-
-                    if add_challenge(self.nome, self.valore_flag, self.categoria, self.flag) == True:
-                        return super(Lab, self).save(*args, **kwargs)
-                    else:
-                        raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato ')
-
+                        raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (1-2)')
                 else:
-                    raise ValidationError('Inserire la configurazione per contattare l\'API di CTFd')
+                    raise ValidationError('FATAL ERROR if non coperto')
+            else:
+                if self.hint is not None and len(self.hint) > 0: # l'hint non è mai stato aggiunto, ma effettivamente controlliamo se è > 0 per capire se aggiugnerlo o meno
+                    challenge_id=check_challenges(self.nome,self.categoria)
+                    if add_hints(challenge_id, self.hint, self.hint_cost) == True:
+                        pass
+                    else:
+                        raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (2-2)')
+            #
+            #--- PATCH ED INSERIMENTO HINT - end
+            #
+
+
         except ObjectDoesNotExist:
             #super(Lab, self).save(*args, **kwargs)
             #raise ValidationError('Questo è un nuovo laboratorio')
+            if add_challenge(self.nome, self.valore_flag, self.categoria, self.flag) == True:
+                pass
+            else:
+                raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (1-2)')
             pass
+            if self.hint is None:
+                pass # l'aggiunta dell'hint è facoltativa
+            else:
+                if len(self.hint) >0:
+                    patch = patch_hint(self.hint, self.hint_cost, self.nome, self.categoria)
+                    if patch == True:
+                        pass
+                    elif patch == "hint non trovato":
+                        challenge_id=check_challenges(self.nome,self.categoria)
+                        if add_hints(challenge_id, self.hint, self.hint_cost) == True:
+                            pass
+                        else:
+                            raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (1-2)')
+                    else:
+                        raise ValidationError('FATAL ERROR if non coperto')
             
 
         return super(Lab, self).save(*args, **kwargs)
