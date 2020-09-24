@@ -33,20 +33,23 @@ def login_view(request):
             if user is not None:
                 try:
                     login(request, user)
-                    request.session["user_pk"] = user.pk
-                
-                    if check_userCTFd_exists(user.pk) == False:
-                        print("\nL'utente su ctfd non esiste... starto il thread\n")
-                        t2 = threading.Thread(target=insert_user,args=[user.pk],daemon=True)
-                        t2.start()
+                    if user.is_superuser == False:
+                        request.session["user_pk"] = user.pk
+                    
+                        if check_userCTFd_exists(user.pk) == False:
+                            print("\nL'utente su ctfd non esiste... starto il thread\n")
+                            t2 = threading.Thread(target=insert_user,args=[user.pk],daemon=True)
+                            t2.start()
 
-                    if check_server_vpn(user.pk) == False:
+                        if check_server_vpn(user.pk) == False:
 
-                        t = threading.Thread(target=create_server_vpn,args=[user.pk],daemon=True)
-                        t.start()
+                            t = threading.Thread(target=create_server_vpn,args=[user.pk],daemon=True)
+                            t.start()
 
-                        return redirect("/?VPN_CREATING")
-
+                            return redirect("/?VPN_CREATING")
+                    else:
+                        return redirect("/admin/")
+                        
                     return redirect("/?success")
                 
                 except User.DoesNotExist:
