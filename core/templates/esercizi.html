@@ -57,8 +57,8 @@
             {% with name_lab="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id %}
             {% with lab_start_time="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_start_time" %}
             {% with lab_durata="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_durata" %}
-            {% with lab_IP="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_IP" %}
-            <div class="laboratorio col-md-6 filtro_livello_{{ laboratorio.livello.pk }} filtro_{{ laboratorio.argomento_1.pk }} filtro_{{ laboratorio.argomento_2.pk }} filtro_{{ laboratorio.argomento_3.pk }} filtro_{{ laboratorio.argomento_4.pk }}">
+            {% with lab_IP="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_IP" %} 
+            <div class="laboratorio col-md-6 filtro_livello_{{ laboratorio.livello.pk }} filtro_{{ laboratorio.argomento_1.pk }} filtro_{{ laboratorio.argomento_2.pk }} filtro_{{ laboratorio.argomento_3.pk }} filtro_{{ laboratorio.argomento_4.pk }} filtro_{{ laboratorio.argomento_5.pk }} filtro_{{ laboratorio.argomento_6.pk }} filtro_{{ laboratorio.argomento_7.pk }} filtro_{{ laboratorio.argomento_8.pk }} filtro_{{ laboratorio.argomento_9.pk }} filtro_{{ laboratorio.argomento_10.pk }} filtro_{{ laboratorio.argomento_11.pk }}">
                 <div class="card">
                     <div class="card-header card-header-primary">
                       <h4 class="card-title ">{{ laboratorio.nome }}<span style="font-size: 15px; float: right;"><i>Durata Massima: {% widthratio laboratorio.durata_secondi 60 1 %}min</i></span></h4>
