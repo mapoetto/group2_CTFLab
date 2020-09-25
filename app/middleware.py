@@ -101,10 +101,10 @@ def get_submissions(user_id):
     fails = get_fail(user_id)
 
     count_fails = fails["meta"]["count"]
-    print(str((risolte)))
+    #print(str((risolte)))
     risolte_count = len((risolte)) 
 
-    print("Totale submission: "+str(int(count_fails) + int(risolte_count))+" di cui "+str(count_fails)+" fallite e "+str(risolte_count))
+    #print("Totale submission: "+str(int(count_fails) + int(risolte_count))+" di cui "+str(count_fails)+" fallite e "+str(risolte_count))
 
 
 def patch_challenge(challenge_id, patch_nameCh, patch_value, patch_categoryCh):
@@ -548,17 +548,17 @@ def get_stats(id_utente_dash):
         fails = get_fail(me.id_ctfd)
 
         count_fails = fails["count"]
-        print(str((risolte)))
+        #print(str((risolte)))
         risolte_count = len((risolte["data"])) 
         
         dict_solves = risolte
         if(int(fails["count"]) > 0):
             dict_fails = fails["data"]
-            print("ho popolato il data")
+            #print("ho popolato il data")
         else:
             dict_fails = {}
 
-        print("Totale submission: "+str(int(count_fails) + int(risolte_count))+" di cui "+str(count_fails)+" fallite e "+str(risolte_count))
+        #print("Totale submission: "+str(int(count_fails) + int(risolte_count))+" di cui "+str(count_fails)+" fallite e "+str(risolte_count))
 
 
     else:

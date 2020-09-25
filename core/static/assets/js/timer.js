@@ -1,9 +1,9 @@
 function get_timer(timestamp, id_display, durata){
-
+    console.log("mostro qui->"+id_display)
     // Set the date we're counting down to
     //old _ new Date("Jan 5, 2021 15:37:25").getTime()
     var inizio = new Date(timestamp).getTime();
-    var countDownDate = inizio + durata*60000;
+    var countDownDate = inizio + (parseInt(durata)*1000);
     
     console.log("ORA: " + inizio + " \n countdown: " + countDownDate)
 
@@ -29,7 +29,10 @@ function get_timer(timestamp, id_display, durata){
         // If the count down is finished, write some text
         if (distance < 0) {
             clearInterval(x);
-            document.getElementById(id_display).innerHTML = "EXPIRED";
+            document.getElementById(id_display).innerHTML = "Laboratorio Stoppato Automaticamente";
+            new_num = parseInt($("#num_notifications").text()) + 1;
+            $("#num_notifications").html(""+new_num+"");
+            $("#num_notifications").css("display","inline");
         }
     }, 1000);
 }

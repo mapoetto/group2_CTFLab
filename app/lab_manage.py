@@ -8,6 +8,7 @@ from app.vpn_manage import check_server_vpn, create_server_vpn
 from app.notification_manage import insert_notification
 from .models import Lab, Statistiche, User
 from django.core.exceptions import ObjectDoesNotExist
+from threading import Timer
 
 from ipaddress import IPv4Interface
 
@@ -63,6 +64,9 @@ def manage(request):
         #                   INIZIO CONFIGURAZIONI VARIABILI                  #
         #                                                                    #
         ######################################################################
+
+        #Gestore stopping_Thread dei Laboratori 
+        pool_threads = {}
 
         #Nome network custom
         network_name_user = "network_userid_" + str(request.session["user_pk"])
@@ -159,7 +163,9 @@ def manage(request):
                         "response_action": "stop_container",
                         "msg_response" : msg_response,
                         "start_time": x.strftime("%m/%d/%Y, %H:%M:%S"),
-                        "show_not": "dontshow"
+                        "show_not": "dontshow",
+                        "durata": labo.durata_secondi,
+                        "id_timer": labo.pk
                     }
                      
                 else:
@@ -176,11 +182,21 @@ def manage(request):
                     response_list = {
                         "response_action": "stop_container",
                         "msg_response" : msg_response,
-                        "start_time": x.strftime("%m/%d/%Y, %H:%M:%S")
+                        "start_time": x.strftime("%m/%d/%Y, %H:%M:%S"),
+                        "durata": labo.durata_secondi,
+                        "id_timer": labo.pk
                     }
 
+
+
+                    print("\n\n\n Starto il thread per stoppare il laboratorio "+name_lab+" tra 60 minuti")
+                    #3600 secondi sono 1 ora 300 sono 5 min
+                    t = Timer(labo.durata_secondi, stop_lab, [name_lab, labo.nome, request.session["user_pk"], request]) # per testing metto 15 secondi
+                    pool_threads[name_lab] = t
+                    t.start()  # after 30 seconds, "hello, world" will be printed
+
                     insert_notification("Laboratorio "+labo.nome+" Avviato!", "#", request.session["user_pk"])
-                    
+                     
                     try:
                         my_stats = Statistiche.objects.get(user_id=User.objects.get(pk=request.session["user_pk"]))
                         my_stats.lab_avviati = int(my_stats.lab_avviati) + 1
@@ -192,31 +208,42 @@ def manage(request):
                     # Setta la sessione che serve al frontend
                     request.session[name_lab] = "running"
                     request.session[name_lab+"_start_time"] = x.strftime("%m/%d/%Y, %H:%M:%S")
+                    request.session[name_lab+"_durata"] = labo.durata_secondi
                     request.session[name_lab+"_IP"] = lab_ip
 
             elif POST_VALUES["action"] == "stop_lab":
                 if(found == True):
-
-                    client.containers.get(name_lab).remove(force=True)
-
-                    msg_response = "Laboratorio Stoppato !! <br />"
+                    print("INIZIO A STOPPARE")
+                    if name_lab in pool_threads:
+                        print("Esiste ancora il thread autostoppante del laboratorio, quindi ora lo killiamo e poi stoppiamo il lab")
+                        pool_threads.get(name_lab).cancel()
+                        del pool_threads[name_lab]
+                    print("1")
+                    try:
+                        client.containers.get(name_lab).remove(force=True)
+                        msg_response = "Laboratorio Stoppato !! <br />"
+                        print("1-1")
+                    except:
+                        msg_response = "Errore nel stoppare il laboratorio (1) !! <br />"
+                        print("1-2")
+                    print("2")
                     response_list = {
                         "msg_response" : msg_response,
                         "response_action": "start_container"
                     }
-                    
+                    print("3")
                     insert_notification("Laboratorio "+labo.nome+" Stoppato!", "#", request.session["user_pk"])
-
+                    print("4")
                     #Togli il valore dalla sessione
                     try:
                         del request.session[name_lab]
                         del request.session[name_lab+"_start_time"]
                         del request.session[name_lab+"_IP"]
+                        print("Sessione relativa al laboratorio "+name_lab+" eliminata")
                     except:
                         print("Errore nel cancellare la sessione")
 
-                    #CHECK se bisogna cancellare anche la rete 
-                    prune_networks()
+                    print("5")
 
                 else:
                     #fatal error
@@ -267,7 +294,41 @@ def get_ip_by_container(container_name, network_name):
         if net_custom.attrs["Containers"][str(container)]['Name'] == container_name:
             return net_custom.attrs["Containers"][str(container)]['IPv4Address']
 
+def check_if_container_up(nome_container):
+    client = get_docker_client(LOCAL_TUNNEL)
+    try:
+        client.containers.get(nome_container)
+        return True
+    except:
+        return False
+
+def stop_lab(name_lab, nome, id_user, request):
+
+    client = get_docker_client(LOCAL_TUNNEL)
+    try:
+        client.containers.get(name_lab).remove(force=True)
+        msg_response = "Laboratorio Stoppato !! <br />"
+    except:
+        msg_response = "Errore nel stoppare il laboratorio (1) !! <br />"
+
+    response_list = {
+        "msg_response" : msg_response,
+        "response_action": "start_container"
+    }
     
+    insert_notification("Laboratorio "+nome+" Stoppato!", "#", id_user)
+
+    #Togli il valore dalla sessione
+    try:
+        del request.session[name_lab]
+        del request.session[name_lab+"_start_time"]
+        del request.session[name_lab+"_IP"]
+        print("Sessione relativa al laboratorio "+name_lab+" eliminata")
+    except:
+        print("Errore nel cancellare la sessione")
+
+    print("RITORNO")
+    return response_list
 
 def prune_networks():
 

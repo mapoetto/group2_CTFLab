@@ -26,15 +26,31 @@ from . import lab_manage as lab_manager
 from . import user_manage as user_manager
 from . import notification_manage as notification_manager
 from django.core.exceptions import ObjectDoesNotExist
+from threading import Timer
+from time import sleep
 
 @login_required(login_url="/login/")
 def index(request):
 
-    me = User.objects.get(pk=request.session["user_pk"])
+    try:
+        me = User.objects.get(pk=request.session["user_pk"])
+    except:
+        html_template = loader.get_template( 'error-403.html' )
+        context = {}
+        return HttpResponse(html_template.render(context, request))
 
     context = {"nome": str(me.nome).title()}
 
-    
+    #def hello(arg1,arg2):
+    #    print ("\n\n-------------->hello, world ->"+arg1+" - "+arg2)
+
+    #print("\n\n\nstarto il thread")
+    #t = Timer(2.0, hello, ["ciaone11","ciaone22"])
+    #t.start()  # after 30 seconds, "hello, world" will be printed
+    #print("aspetto 2 secondi ")
+    #sleep(10)
+    #t.cancel()
+    #print("l'ho cancellato")
 
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
@@ -64,8 +80,12 @@ def pages(request):
 def get_client_vpn(request):
     
     client = get_docker_client(LOCAL_TUNNEL)
-
-    user_id = str(request.session["user_pk"])
+    try:
+        user_id = str(request.session["user_pk"])
+    except:
+        html_template = loader.get_template( 'error-403.html' )
+        context = {}
+        return HttpResponse(html_template.render(context, request))
 
     cont_vpn = client.containers.get("serverVPN_user_" + user_id)
     stdout = cont_vpn.exec_run(cmd="sh -c 'cat client.ovpn'")
@@ -141,7 +161,34 @@ def esercizi(request):
 
     client = get_docker_client(LOCAL_TUNNEL)
 
-    user_id = str(request.session["user_pk"])
+    #request.session[name_lab]
+    #request.session[name_lab+"_start_time"]
+    #request.session[name_lab+"_IP"]
+
+    from .lab_manage import check_if_container_up
+
+    for lab in labs:
+        name_lab = "labid_" + str(lab.pk) + "_userid_" + str(request.session["user_pk"])
+        if name_lab in request.session:
+            if check_if_container_up(name_lab) == False:
+                print("\nHo trovato una sessione settata, per un laboratorio inesistente...provvedo a cancellare:\n")
+                try:
+                    del request.session[name_lab]
+                    del request.session[name_lab+"_start_time"]
+                    del request.session[name_lab+"_IP"]
+                    print("---Sessioni cancellate")
+                except:
+                    print("---Errore nel cancellare le sessioni associate")
+
+
+
+    try:
+        user_id = str(request.session["user_pk"])
+    except:
+        html_template = loader.get_template( 'error-403.html' )
+        context = {}
+        return HttpResponse(html_template.render(context, request))
+
     try:
         cont_vpn = client.containers.get("serverVPN_user_" + user_id)
         stdout = cont_vpn.exec_run(cmd="sh -c 'cat client.ovpn'")
@@ -179,19 +226,23 @@ def cyberkillchain(request):
 def core(request):
 
     from .middleware import get_stats
+    try:
+        user_id = str(request.session["user_pk"])
 
-    if request.is_ajax():
-        POST_VALUES = json.loads(request.POST.get('data'))
-        if POST_VALUES["action"] == "start_lab" or POST_VALUES["action"] == "stop_lab":
-            message = lab_manager.manage(request)
-        elif POST_VALUES["action"] == "get_notifications":
-            message = notification_manager.manage(request)
-        elif POST_VALUES["action"] == "retrive_stats":
-            message = get_stats(str(request.session["user_pk"]))
+        if request.is_ajax():
+            POST_VALUES = json.loads(request.POST.get('data'))
+            if POST_VALUES["action"] == "start_lab" or POST_VALUES["action"] == "stop_lab":
+                message = lab_manager.manage(request)
+            elif POST_VALUES["action"] == "get_notifications":
+                message = notification_manager.manage(request)
+            elif POST_VALUES["action"] == "retrive_stats":
+                message = get_stats(str(request.session["user_pk"]))
+            else:
+                message = "Unknown actions"
         else:
-            message = "Unknown actions"
-    else:
-        message = "Not Ajax"
+            message = "Not Ajax"
+    except:
+        message = "Eccezione Generata, se sei admin, non puoi lanciare i laboratori!"
 
     return HttpResponse(message)
 

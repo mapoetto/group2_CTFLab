@@ -56,11 +56,12 @@
 
             {% with name_lab="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id %}
             {% with lab_start_time="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_start_time" %}
+            {% with lab_durata="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_durata" %}
             {% with lab_IP="labid_"|add:laboratorio_id|add:"_userid_"|add:user_id|add:"_IP" %}
             <div class="laboratorio col-md-6 filtro_livello_{{ laboratorio.livello.pk }} filtro_{{ laboratorio.argomento_1.pk }} filtro_{{ laboratorio.argomento_2.pk }} filtro_{{ laboratorio.argomento_3.pk }} filtro_{{ laboratorio.argomento_4.pk }}">
                 <div class="card">
                     <div class="card-header card-header-primary">
-                      <h4 class="card-title ">{{ laboratorio.nome }}</h4>
+                      <h4 class="card-title ">{{ laboratorio.nome }}<span style="font-size: 15px; float: right;"><i>Durata Massima: {% widthratio laboratorio.durata_secondi 60 1 %}min</i></span></h4>
                       <p class="card-category">{{ laboratorio.sotto_titolo }}</p>
                       {% if laboratorio.argomento_1.colore|length >= 3 %}
                         <a href="/arg-{{ laboratorio.argomento_1.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_1.colore }};">{{ laboratorio.argomento_1.argomento }}</span></a>
@@ -73,6 +74,27 @@
                       {% endif %}
                       {% if laboratorio.argomento_4.colore|length >= 3 %}
                         <a href="/arg-{{ laboratorio.argomento_4.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_4.colore }};">{{ laboratorio.argomento_4.argomento }}</span></a>
+                      {% endif %}
+                      {% if laboratorio.argomento_5.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_5.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_5.colore }};">{{ laboratorio.argomento_5.argomento }}</span></a>
+                      {% endif %}
+					            {% if laboratorio.argomento_6.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_6.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_6.colore }};">{{ laboratorio.argomento_6.argomento }}</span></a>
+                      {% endif %}
+					            {% if laboratorio.argomento_7.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_7.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_7.colore }};">{{ laboratorio.argomento_7.argomento }}</span></a>
+                      {% endif %}
+					            {% if laboratorio.argomento_8.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_8.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_8.colore }};">{{ laboratorio.argomento_8.argomento }}</span></a>
+                      {% endif %}
+					            {% if laboratorio.argomento_9.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_9.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_9.colore }};">{{ laboratorio.argomento_9.argomento }}</span></a>
+                      {% endif %}
+					            {% if laboratorio.argomento_10.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_10.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_10.colore }};">{{ laboratorio.argomento_10.argomento }}</span></a>
+                      {% endif %}
+					            {% if laboratorio.argomento_11.colore|length >= 3 %}
+                        <a href="/arg-{{ laboratorio.argomento_11.pk }}.html"><span class="card-category tag_args" style="  border: 2px solid {{ laboratorio.argomento_11.colore }};">{{ laboratorio.argomento_11.argomento }}</span></a>
                       {% endif %}
                       {% if laboratorio.livello.colore|length >= 3 %}
                         <span class="card-category tag_level" style=" background-color: {{ laboratorio.livello.colore }}; font-weight: bold;"><b>{{ laboratorio.livello.livello }}</b></span>
@@ -89,7 +111,7 @@
                             <button class="btn btn-primary" id="{{ laboratorio.pk }}_start" onclick="return action_lab('start_lab','{{ laboratorio.pk }}','result_{{ laboratorio.pk }}')" style="display:none;">Avvia Lab</button>
                             <br />IP Lab: {{ request.session|keyvalue:lab_IP }}
                             <script>
-                              get_timer('{{ request.session|keyvalue:lab_start_time }}', 'timer_{{ laboratorio.pk }}', 30);
+                              get_timer('{{ request.session|keyvalue:lab_start_time }}', 'timer_{{ laboratorio.pk }}', '{{ request.session|keyvalue:lab_durata }}');
                             </script>
                           {% endif %} 
                         {% else %}
@@ -97,6 +119,8 @@
                           <button class="btn btn-primary" id="{{ laboratorio.pk }}_start" onclick="return action_lab('start_lab','{{ laboratorio.pk }}')">Avvia Lab</button>
                         {% endif %} 
                         <span style="float: right;"><br /><a href="doc-lab-{{ laboratorio.pk }}.html">Documentazione</a></span>
+                        <div id="result_{{ laboratorio.pk }}"></div>
+                        <div id="timer_{{ laboratorio.pk }}"></div>
                         <script>
 
                             function send_req(POST_REQUEST, lab){
@@ -121,7 +145,7 @@
                                       document.getElementById(lab+"_start").style.display = 'none';
                                       document.getElementById(lab+"_stop").style.display = 'block';
                                       document.getElementById("timer_"+lab).style.display = 'block';
-                                      get_timer(cb.start_time, 'timer_{{ laboratorio.pk }}', 30);
+                                      get_timer(cb.start_time, 'timer_'+cb.id_timer, cb.durata);
                                       new_num = parseInt($("#num_notifications").text()) + 1;
                                       if (typeof cb.show_not == "undefined"){ //se è diverso da undefined vuol dire che non deve mostrare la notifica
                                         $("#num_notifications").html(""+new_num+"");
@@ -139,7 +163,7 @@
                                   }
                                   
                                     //questo nasconde il caricamento 
-                                    document.getElementById("result_"+lab).innerHTML = cb.msg_response;
+                                    document.getElementById("result_"+lab).innerHTML = "<b>"+cb.msg_response+"</b>";
                                 }
                               });
 
@@ -159,12 +183,12 @@
                               return false;
                             }
                         </script>
-                        <div id="result_{{ laboratorio.pk }}"></div>
-                        <div id="timer_{{ laboratorio.pk }}"></div>
+                        
                       </div>
                     </div>
                   </div>
             </div>
+            {% endwith %}
             {% endwith %}
             {% endwith %}
             {% endwith %}

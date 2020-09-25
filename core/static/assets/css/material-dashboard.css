@@ -13476,7 +13476,7 @@ fieldset[disabled] .form-group .form-control {
 }
 
 .alert.alert-info {
-  background-color: #00cae3;
+  background: linear-gradient(71deg, rgba(173,107,59,1) 54%, rgba(132,57,145,1) 100%);
   color: #ffffff;
 }
 
@@ -16831,7 +16831,7 @@ label {
 .card.bg-primary,
 .card.card-rotate.bg-primary .front,
 .card.card-rotate.bg-primary .back {
-  background: linear-gradient(60deg, #ab47bc, #8e24aa);
+  background: linear-gradient(71deg, rgba(132,57,145,1) 54%, rgba(173,107,59,1) 100%);
 }
 
 .card .card-header-info .card-icon,

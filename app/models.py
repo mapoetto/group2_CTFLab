@@ -166,6 +166,8 @@ class Lab(models.Model):
     hint = models.CharField(max_length=220, default='', blank=True, null=True)
     hint_cost = models.IntegerField("Costo del Hint",validators=[validate_flag], default=4, blank=True, null=True)
 
+    durata_secondi = models.IntegerField("Durata massima in secondi",validators=[validate_flag], default=3600, help_text ="Esempio: 3600 secondi sono 1 ora, 300 secondi sono 5 minuti")
+
     NET_ADMIN = 'NET_ADMIN'
     TRUE = 'True'
     FALSE = 'False'
@@ -209,6 +211,15 @@ class Lab(models.Model):
     argomento_2=models.ForeignKey(Tag_Args, related_name="argo2", default=None, blank=True, null=True, on_delete=models.CASCADE)
     argomento_3=models.ForeignKey(Tag_Args, related_name="argo3", default=None, blank=True, null=True, on_delete=models.CASCADE)
     argomento_4=models.ForeignKey(Tag_Args, related_name="argo4", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    
+    
+    argomento_5=models.ForeignKey(Tag_Args, related_name="argo5", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_6=models.ForeignKey(Tag_Args, related_name="argo6", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_7=models.ForeignKey(Tag_Args, related_name="argo7", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_8=models.ForeignKey(Tag_Args, related_name="argo8", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_9=models.ForeignKey(Tag_Args, related_name="argo9", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_10=models.ForeignKey(Tag_Args, related_name="argo10", default=None, blank=True, null=True, on_delete=models.CASCADE)
+    argomento_11=models.ForeignKey(Tag_Args, related_name="argo11", default=None, blank=True, null=True, on_delete=models.CASCADE)
 
 
     def save(self, *args, **kwargs):
@@ -316,7 +327,7 @@ class Lab(models.Model):
                         if add_hints(challenge_id, self.hint, self.hint_cost) == True:
                             pass
                         else:
-                            raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (1-2)')
+                            raise ValidationError('Errore dell\' API CTFd, il laboratorio non è stato aggiornato (2-2)')
                     else:
                         raise ValidationError('FATAL ERROR if non coperto')
             
