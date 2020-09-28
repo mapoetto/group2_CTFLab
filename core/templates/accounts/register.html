@@ -12,7 +12,7 @@
       <div class="card">
         <div class="card-header card-header-primary">
           <h4 class="card-title">
-            Create Account
+            Crea un Account
           </h4>
         </div>
         <div class="card-body">
@@ -47,9 +47,10 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label class="bmd-label-floating">Nome</label>
-                    {{ form.nome }}
+                    <label class="bmd-label-floating">Email</label>
+                    {{ form.email }}
                   </div>
+
                 </div>
               </div>
               <span class="text-danger">{{ form.username.errors }}</span>
@@ -59,8 +60,8 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label class="bmd-label-floating">Email</label>
-                    {{ form.email }}
+                    <label class="bmd-label-floating">Nome</label>
+                    {{ form.nome }}
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -83,8 +84,8 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label class="bmd-label-floating">Professione</label>
-                    {{ form.professione }}
+                    <label class="bmd-label-floating">Ripeti Password</label>
+                    {{ form.password2 }}
                   </div>
                 </div>
               </div>
@@ -95,8 +96,8 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label class="bmd-label-floating">Ripeti Password</label>
-                    {{ form.password2 }}
+                    <label class="bmd-label-floating">Professione</label>
+                    {{ form.professione }}
                   </div>
                 </div>
               </div>
@@ -104,11 +105,11 @@
 
               <br />
 
-              <button type="submit" name="register" class="btn btn-primary pull-left">Register</button>
+              <button type="submit" name="register" class="btn btn-primary pull-left">Registrati</button>
 
               &nbsp; &nbsp; 
               <span class="pull-right">
-                Have an account? <a href="{% url 'login' %}" class="text-primary">Login</a>
+                Hai già un account? <a href="{% url 'login' %}" class="text-primary">Login</a>
               </span>
 
               <div class="clearfix"></div>

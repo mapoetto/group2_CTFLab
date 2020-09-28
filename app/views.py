@@ -124,10 +124,13 @@ def argomenti(request):
 @login_required(login_url="/login/")
 def page_user(request):
     context = {}
-    print(request.user.id)
+    #print(request.user.id)
     try:
         user_me = User.objects.get(pk=request.user.id)
-
+        if user_me.is_superuser == False:
+            pass
+        else:
+            return redirect("/admin/")
         context = {
             'user_me': user_me,
         }

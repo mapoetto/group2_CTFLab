@@ -256,7 +256,7 @@ def manage(request):
                         print("Errore nel cancellare la sessione" )
                         
 
-                    msg_response = "FATAL ERROR - Laboratorio NON TROVATO !! <br />"
+                    msg_response = "Laboratorio non in esecuzione !! <br />"
                     response_list = {
                         "msg_response" : msg_response
                     }
