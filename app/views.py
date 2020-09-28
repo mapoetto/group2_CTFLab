@@ -170,6 +170,13 @@ def esercizi(request):
     #request.session[name_lab+"_start_time"]
     #request.session[name_lab+"_IP"]
 
+    try:
+        user_id = str(request.session["user_pk"])
+    except:
+        html_template = loader.get_template( 'error-403.html' )
+        context = {}
+        return HttpResponse(html_template.render(context, request))
+
     from .lab_manage import check_if_container_up
 
     for lab in labs:
@@ -184,15 +191,6 @@ def esercizi(request):
                     print("---Sessioni cancellate")
                 except:
                     print("---Errore nel cancellare le sessioni associate")
-
-
-
-    try:
-        user_id = str(request.session["user_pk"])
-    except:
-        html_template = loader.get_template( 'error-403.html' )
-        context = {}
-        return HttpResponse(html_template.render(context, request))
 
     try:
         cont_vpn = client.containers.get("serverVPN_user_" + user_id)
