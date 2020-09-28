@@ -126,7 +126,7 @@ def page_user(request):
     context = {}
     #print(request.user.id)
     try:
-        user_me = User.objects.get(pk=request.user.id)
+        user_me = User.objects.get(pk=request.session["user_pk"])
         if user_me.is_superuser == False:
             pass
         else:
