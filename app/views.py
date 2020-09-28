@@ -140,6 +140,8 @@ def page_user(request):
         #Loggando come admin e visualizzando la dashboard con questo try-except se si clicca su profilo ti ritorna al pannello admin 
         # Da modficiare il ritorno se si vuole, ma non omettere perchè genera l'eccezione
         return redirect("/admin/")
+    except KeyError:
+        return redirect("/admin/")
 
 def doc_lab(request):
     page = request.get_full_path()
